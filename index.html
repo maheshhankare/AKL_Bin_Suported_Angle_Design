@@ -73,10 +73,18 @@ svg .muted{fill:var(--muted)}
   <section>
     <div id="febanner"></div>
     <div class="tiles" id="tiles"></div>
+    <div class="panel"><h2>Line load on one angle (calculated)</h2><div class="scroll"><table id="loads"></table></div><p class="sub" id="loadnote"></p></div>
     <div class="panel"><h2>Design checks</h2><div class="scroll"><table id="checks"></table></div></div>
-    <div class="panel"><h2>Leg tip deflection along the angle, 50 kg bins (SLS)</h2><div id="chart"></div>
+    <div class="panel"><h2 id="charttitle">Leg tip deflection along the angle (SLS)</h2><div id="chart"></div>
       <div class="legend"><span><i style="background:var(--c1)"></i>Leg tip (hand)</span><span><i style="background:var(--c2)"></i>Heel (hand)</span><span id="felg"><i style="background:var(--c3)"></i>Leg tip (FE)</span></div></div>
     <div class="panel"><h2>Beam condition</h2><div id="sketch"></div></div>
+    <div class="panel"><h2>Capacity per configuration: Reference Graph vs Norden Non-FEM vs Cloud FEM</h2>
+      <p class="sub">Fixed results from the complete Excel (Index sheet); they do not change with the inputs above. Reference Graph = vendor chart, interpolated; Norden Non-FEM = colleague Excel method; Cloud FEM = Claude finite element analysis. Angle 70 × Lu × t, compartment depth 1216 mm, kg per compartment.</p>
+      <div class="scroll"><table id="capmax"></table></div>
+      <div id="capchart" style="margin-top:14px"></div>
+      <div class="legend"><span><i style="background:var(--c2);height:4px"></i>Reference Graph</span><span><i style="background:#c55a11"></i>Norden Non-FEM</span><span><i style="background:var(--c1)"></i>Cloud FEM</span></div>
+      <details class="grp" style="margin-top:10px"><summary>All 84 configurations</summary><div class="scroll"><table id="cap"></table></div></details>
+      <p class="sub">The final maximum is the largest of the three methods, as requested. Design normally uses the governing (lowest) value, because the angle must satisfy every method. None of the three includes a bin tilt limit.</p></div>
     <div class="panel"><h2>Beam, torsion and leg results</h2><div class="scroll"><table id="beam"></table></div></div>
     <div class="panel"><h2>Section properties</h2><div class="scroll"><table id="section"></table></div></div>
     <div class="panel"><h2>FE vs hand, per 1 N/mm</h2><div class="scroll"><table id="ver"></table></div></div>
@@ -89,7 +97,7 @@ svg .muted{fill:var(--muted)}
 const DEFAULT_INPUTS = {
   h: 60, b: 70, t: 2.5, xs: 10,
   a: 900, ov: 300, zb1: 15, zb2: 45,
-  lbin: 400, mbin: 50, share: 0.5, wuser: 5.05, gacc: 9.81, gQ: 1.4,
+  lbin: 400, nbin: 2, mbin: 50, share: 0.5, gacc: 9.81, gQ: 1.4,
   fy: 350, fu: 420, E: 210000, nu: 0.3, gM0: 1.0, gM1: 1.0, gM2: 1.25,
   bd: 8, bd0: 9, bAs: 36.6, fub: 800, endd: 20,
   limG: 200, limC: 100, limO: 300, limTip: 3, limRel: 1.5, rim: 3,
@@ -107,8 +115,14 @@ const DEFAULT_FE = {
 function calc(I, FE) {
   const r = {};
   // derived loads
-  r.w1s = I.mbin * I.gacc * I.share / I.lbin; r.w1u = I.gQ * r.w1s;
-  r.w2s = I.wuser; r.w2u = I.gQ * r.w2s; r.Ltot = I.a + I.ov;
+  // Line loads are calculated, not entered:
+  //   load on one angle P = n_bins · m_bin · g · share
+  //   case 1, under one bin:      w1 = m_bin · g · share / bearing length (local intensity, applied over a + b)
+  //   case 2, spread over angle:  w2 = P / (a + b)
+  r.Ltot = I.a + I.ov; r.Pbin = I.mbin * I.gacc * I.share; r.Pang = I.nbin * r.Pbin;
+  r.w1s = r.Pbin / I.lbin; r.w1u = I.gQ * r.w1s;
+  r.w2s = r.Pang / r.Ltot; r.w2u = I.gQ * r.w2s;
+  r.bearTot = I.nbin * I.lbin;
   // section
   const S = r.sec = {};
   S.hm = I.h - I.t / 2; S.bm = I.b - I.t / 2; S.Ar = I.t * (S.hm + S.bm); S.kgm = S.Ar * 7850 / 1e6;
@@ -177,7 +191,7 @@ function calc(I, FE) {
   X.lp = S.cOt / (28.4 * S.epsi * Math.sqrt(X.ks)); X.rho = X.lp > 0.748 ? Math.min(1, (X.lp - 0.188) / X.lp ** 2) : 1;
   X.FvRd = 0.6 * I.fub * I.bAs / I.gM2; X.ad = Math.min((I.h - I.zb2) / (3 * I.bd0), I.fub / I.fu, 1);
   X.k1 = Math.min(2.8 * I.endd / I.bd0 - 1.7, 2.5); X.FbRd = X.k1 * X.ad * I.fu * I.bd * I.t / I.gM2; X.FtRd = 0.9 * I.fub * I.bAs / I.gM2;
-  const cases = [{ name: '50 kg bins', wu: r.w1u, ws: r.w1s }, { name: 'Your line load', wu: r.w2u, ws: r.w2s }];
+  const cases = [{ name: 'Under one bin', wu: r.w1u, ws: r.w1s }, { name: 'Spread over a + b', wu: r.w2u, ws: r.w2s }];
   for (const c of cases) {
     c.vm = r.kVm * B.vmH * c.wu; c.aUlt = I.fy / c.vm; c.aCr = r.feLam / c.wu; c.lam = Math.sqrt(c.aUlt / c.aCr);
     c.phi = 0.5 * (1 + 0.76 * (c.lam - 0.2) + c.lam ** 2); c.chi = Math.min(1, 1 / (c.phi + Math.sqrt(c.phi ** 2 - c.lam ** 2)));
@@ -212,7 +226,7 @@ const FE_X = [-20,-15,-10,-5,0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85
 const GROUPS = [
   ['Section', [['h','Vertical leg height (outside)','mm',1],['b','Horizontal leg width (outside)','mm',1],['t','Thickness','mm',1],['xs','Bearing strip width at leg tip','mm']]],
   ['Beam condition', [['a','Span a between bolt lines','mm',1],['ov','Overhang b beyond bolt line B','mm',1],['zb1','Lower bolt height above underside','mm'],['zb2','Upper bolt height above underside','mm']]],
-  ['Loads', [['lbin','Bin bearing length along angle','mm'],['mbin','Max gross bin mass','kg',1],['share','Share of a bin on one angle','-'],['wuser','Your line load (SLS)','N/mm',1],['gacc','Gravity','m/s²'],['gQ','ULS load factor','-']]],
+  ['Loads', [['nbin','Bins along one angle','-',1],['mbin','Max gross bin mass','kg',1],['lbin','Bin bearing length along angle','mm'],['share','Share of a bin on one angle','-'],['gacc','Gravity','m/s²'],['gQ','ULS load factor','-']]],
   ['Material', [['fy','Yield strength','MPa'],['fu','Ultimate strength','MPa'],['E','Elastic modulus','MPa'],['nu','Poisson ratio','-'],['gM0','γM0','-'],['gM1','γM1','-'],['gM2','γM2','-']]],
   ['Bolts', [['bd','Bolt diameter','mm'],['bd0','Hole diameter','mm'],['bAs','Tensile stress area','mm²'],['fub','Bolt ultimate strength','MPa'],['endd','End distance e2','mm']]],
   ['Limits', [['limG','Span deflection limit a/…','-'],['limC','Overhang tip limit b/…','-'],['limO','Operating leg tip limit a/…','-',1],['limTip','Absolute leg tip limit','mm',1],['limRel','Tip relative to heel (bin tilt)','mm',1],['rim','Bin rim contact width','mm']]],
@@ -248,12 +262,26 @@ function update() {
     ? `<div class="banner ok">Inputs match the FE run (h ${g.h}, b ${g.b}, t ${g.t}, a ${g.a}, overhang ${g.ov}), so the FE correction factors and buckling factor are valid.</div>`
     : `<div class="banner warn">Geometry differs from the FE run (h ${g.h}, b ${g.b}, t ${g.t}, a ${g.a}, overhang ${g.ov}). The FE correction factors and buckling factor are approximate: rerun FE for this geometry and enter the results under “FE results”.</div>`;
   const cs = R.cases;
+  document.getElementById('loads').innerHTML = `<tr><th>Step</th><th>Formula</th><th>Value</th></tr>
+    <tr><td>Load of one bin on one angle</td><td>m · g · share = ${f(I.mbin, 1)} × ${f(I.gacc)} × ${f(I.share)}</td><td>${f(R.Pbin, 1)} N</td></tr>
+    <tr><td>Total load on one angle</td><td>n × ${f(R.Pbin, 1)} = ${I.nbin} × ${f(R.Pbin, 1)}</td><td>${f(R.Pang, 1)} N</td></tr>
+    <tr><td>Loaded length of the angle</td><td>a + b = ${I.a} + ${I.ov}</td><td>${f(R.Ltot, 0)} mm</td></tr>
+    <tr class="band"><td colspan="3">Case 1: ${cs[0].name} (local intensity, applied over a + b, conservative)</td></tr>
+    <tr><td>Line load, SLS</td><td>${f(R.Pbin, 1)} / bearing length ${I.lbin} mm</td><td>${f(R.w1s, 3)} N/mm</td></tr>
+    <tr><td>Line load, ULS</td><td>× γQ ${f(I.gQ)}</td><td>${f(R.w1u, 3)} N/mm</td></tr>
+    <tr class="band"><td colspan="3">Case 2: ${cs[1].name} (average over the angle)</td></tr>
+    <tr><td>Line load, SLS</td><td>${f(R.Pang, 1)} / (a + b) ${f(R.Ltot, 0)} mm</td><td>${f(R.w2s, 3)} N/mm</td></tr>
+    <tr><td>Line load, ULS</td><td>× γQ ${f(I.gQ)}</td><td>${f(R.w2u, 3)} N/mm</td></tr>`;
+  document.getElementById('loadnote').innerHTML = R.bearTot > R.Ltot
+    ? `<b style="color:var(--fail)">${I.nbin} bins × ${I.lbin} mm = ${f(R.bearTot, 0)} mm do not fit on a + b = ${f(R.Ltot, 0)} mm. Check the number of bins or the lengths.</b>`
+    : `Bins cover ${f(R.bearTot, 0)} of ${f(R.Ltot, 0)} mm. Case 1 is the bin's own line load spread over the whole angle, so it is the stricter case unless the bins sit end to end.`;
+  document.getElementById('charttitle').textContent = `Leg tip deflection along the angle, ${cs[0].name.toLowerCase()} (SLS, ${f(R.w1s, 3)} N/mm)`;
   document.getElementById('tiles').innerHTML = cs.map((c, k) => {
     const s = R.summary[k];
     return `<div class="tile ${s.pass ? 'pass' : 'fail'}"><div class="k">${c.name}: ${f(c.ws, 3)} N/mm SLS, ${f(c.wu, 3)} N/mm ULS</div><div class="v">${s.pass ? 'PASS' : 'FAIL'} · ${f(s.u)}</div><div class="d">Governing: ${s.governing}</div></div>`;
   }).join('') + `<div class="tile ${R.feValid ? 'pass' : 'warn'}"><div class="k">FE factors</div><div class="v">${R.feValid ? 'Valid' : 'Rerun FE'}</div><div class="d">k_vm ${f(R.kVm)}, k_leg ${f(R.kLeg)}, k_def ${f(R.kDef)}, λ_FE ${f(R.feLam)}</div></div>`;
   document.getElementById('checks').innerHTML =
-    `<tr><th>Check</th><th colspan="4">50 kg bins</th><th colspan="4">Your line load</th><th style="text-align:left">Notes</th></tr>
+    `<tr><th>Check</th><th colspan="4">${cs[0].name}</th><th colspan="4">${cs[1].name}</th><th style="text-align:left">Notes</th></tr>
      <tr><th></th><th>Ed</th><th>Rd</th><th>Util</th><th>Result</th><th>Ed</th><th>Rd</th><th>Util</th><th>Result</th><th></th></tr>` +
     R.checks.map(ch => `<tr><td>${ch.label}</td>${ch.res.map(x => `<td>${f(x.Ed)}</td><td>${f(x.Rd)}</td><td>${f(x.u)}</td><td>${tag(x.pass)}</td>`).join('')}<td class="note">${ch.note}</td></tr>`).join('') +
     `<tr class="band"><td>Maximum utilisation</td>${R.summary.map(s => `<td></td><td></td><td>${f(s.u)}</td><td>${tag(s.pass)}</td>`).join('')}<td></td></tr>`;
@@ -263,7 +291,7 @@ function update() {
     ['Torsion (twist held at A and B)'], ['Twist at midspan (rad)', B.thMid], ['Twist at overhang tip (rad)', B.thOv], ['Torque into bolts at A (N·mm)', B.TA], ['Torque into bolts at B (N·mm)', B.TB], ['Torsional shear stress (MPa)', B.tau],
     ['Stresses'], ['Max bending stress (MPa)', B.sB], ['Compression at top of vertical leg (MPa)', B.sCom], ['von Mises, hand (MPa)', B.vmH], ['Leg transverse stress at heel (MPa)', B.sLeg], ['Leg local tip deflection (mm)', B.dLeg],
     ['Leg tip deflection = beam + twist × bm + local'], ['Leg tip at midspan (mm)', B.tMid], ['Leg tip at overhang end (mm)', B.tOv], ['Tip relative to heel, midspan (mm)', B.rMid], ['Tip relative to heel, overhang end (mm)', B.rOv]];
-  document.getElementById('beam').innerHTML = `<tr><th>Quantity</th><th>Per 1 N/mm</th><th>50 kg SLS</th><th>Your load SLS</th></tr>` +
+  document.getElementById('beam').innerHTML = `<tr><th>Quantity</th><th>Per 1 N/mm</th><th>${R.cases[0].name}, SLS</th><th>${R.cases[1].name}, SLS</th></tr>` +
     rows.map(r => r.length === 1 ? `<tr class="band"><td colspan="4">${r[0]}</td></tr>` : `<tr><td>${r[0]}</td><td>${f(r[1], 4)}</td><td>${f(r[1] * R.w1s, 3)}</td><td>${f(r[1] * R.w2s, 3)}</td></tr>`).join('');
   const sr = [['Mid-line heights hm / bm (mm)', `${f(S.hm)} / ${f(S.bm)}`], ['Area (mm²)', f(S.Ar)], ['Mass (kg/m)', f(S.kgm, 3)], ['Centroid y / z (mm)', `${f(S.yc)} / ${f(S.zc)}`],
     ['Iyy / Izz (mm⁴)', `${f(S.Iyy, 0)} / ${f(S.Izz, 0)}`], ['Iyz (mm⁴)', f(S.Iyz, 0)], ['Effective I, vertical (mm⁴)', f(S.Ieff, 0)], ['Torsion constant J (mm⁴)', f(S.Jt, 1)],
@@ -316,12 +344,962 @@ document.getElementById('theme').onclick = () => { const d = document.documentEl
 document.getElementById('csv').onclick = () => {
   const q = v => typeof v === 'number' ? String(v) : `"${String(v).replace(/"/g, '""')}"`;
   const lines = [['Input', 'Value'].map(q).join(','), ...Object.entries(I).map(([k, v]) => [k, v].map(q).join(',')), '',
-    ['Check', '50kg Ed', '50kg Rd', '50kg util', '50kg result', 'user Ed', 'user Rd', 'user util', 'user result'].map(q).join(','),
+    ['Check', ...R.cases.flatMap(c => ['Ed', 'Rd', 'util', 'result'].map(x => c.name + ' ' + x))].map(q).join(','),
     ...R.checks.map(c => [c.label, ...c.res.flatMap(x => [x.Ed, x.Rd, x.u, x.pass ? 'PASS' : 'FAIL'])].map(q).join(',')),
     '', q('FE factors valid') + ',' + q(R.feValid ? 'YES' : 'NO: rerun FE')];
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv' })); a.download = 'AKL_angle_checks.csv'; a.click();
 };
 buildInputs(); update();
+const CAP = [
+{
+"angle": "L 70 x 70 x 1.5 (S250)",
+"cond": "a = 966 mm, overhang 250 mm",
+"g": 67.5,
+"n": 52.1,
+"f": 59.8,
+"max": 67.5,
+"maxm": "REFERENCE GRAPH",
+"min": 52.1,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 1.5 (S250)",
+"cond": "a = 986 mm, overhang 230 mm",
+"g": 69,
+"n": 50.8,
+"f": 57.9,
+"max": 69,
+"maxm": "REFERENCE GRAPH",
+"min": 50.8,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 1.5 (S250)",
+"cond": "a = 1006 mm, overhang 210 mm",
+"g": 70,
+"n": 49.6,
+"f": 56.1,
+"max": 70,
+"maxm": "REFERENCE GRAPH",
+"min": 49.6,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 1.5 (S250)",
+"cond": "a = 1026 mm, overhang 190 mm",
+"g": 71,
+"n": 48.4,
+"f": 54.4,
+"max": 71,
+"maxm": "REFERENCE GRAPH",
+"min": 48.4,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 1.5 (S250)",
+"cond": "a = 1046 mm, overhang 170 mm",
+"g": 69,
+"n": 47.2,
+"f": 52.9,
+"max": 69,
+"maxm": "REFERENCE GRAPH",
+"min": 47.2,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 1.5 (S250)",
+"cond": "a = 1066 mm, overhang 150 mm",
+"g": 64.5,
+"n": 45.6,
+"f": 51.4,
+"max": 64.5,
+"maxm": "REFERENCE GRAPH",
+"min": 45.6,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 1.5 (S250)",
+"cond": "a = 1086 mm, overhang 130 mm",
+"g": 60.5,
+"n": 44,
+"f": 50,
+"max": 60.5,
+"maxm": "REFERENCE GRAPH",
+"min": 44,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 1.5 (S250)",
+"cond": "a = 1106 mm, overhang 110 mm",
+"g": 57.5,
+"n": 42.5,
+"f": 48.7,
+"max": 57.5,
+"maxm": "REFERENCE GRAPH",
+"min": 42.5,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 1.5 (S250)",
+"cond": "a = 1126 mm, overhang 90 mm",
+"g": 54.5,
+"n": 41,
+"f": 47.5,
+"max": 54.5,
+"maxm": "REFERENCE GRAPH",
+"min": 41,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 1.5 (S250)",
+"cond": "a = 1146 mm, overhang 70 mm",
+"g": 51.5,
+"n": 39.6,
+"f": 46.3,
+"max": 51.5,
+"maxm": "REFERENCE GRAPH",
+"min": 39.6,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 1.5 (S250)",
+"cond": "a = 1166 mm, overhang 50 mm",
+"g": 49,
+"n": 38.3,
+"f": 45.1,
+"max": 49,
+"maxm": "REFERENCE GRAPH",
+"min": 38.3,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 1.75 (S280)",
+"cond": "a = 966 mm, overhang 250 mm",
+"g": 106.5,
+"n": 81.8,
+"f": 91.5,
+"max": 106.5,
+"maxm": "REFERENCE GRAPH",
+"min": 81.8,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 1.75 (S280)",
+"cond": "a = 986 mm, overhang 230 mm",
+"g": 109,
+"n": 79.7,
+"f": 88.6,
+"max": 109,
+"maxm": "REFERENCE GRAPH",
+"min": 79.7,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 1.75 (S280)",
+"cond": "a = 1006 mm, overhang 210 mm",
+"g": 111,
+"n": 77.7,
+"f": 85.8,
+"max": 111,
+"maxm": "REFERENCE GRAPH",
+"min": 77.7,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 1.75 (S280)",
+"cond": "a = 1026 mm, overhang 190 mm",
+"g": 111.5,
+"n": 75.8,
+"f": 83.3,
+"max": 111.5,
+"maxm": "REFERENCE GRAPH",
+"min": 75.8,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 1.75 (S280)",
+"cond": "a = 1046 mm, overhang 170 mm",
+"g": 105.5,
+"n": 74,
+"f": 80.9,
+"max": 105.5,
+"maxm": "REFERENCE GRAPH",
+"min": 74,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 1.75 (S280)",
+"cond": "a = 1066 mm, overhang 150 mm",
+"g": 99.5,
+"n": 71.4,
+"f": 78.7,
+"max": 99.5,
+"maxm": "REFERENCE GRAPH",
+"min": 71.4,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 1.75 (S280)",
+"cond": "a = 1086 mm, overhang 130 mm",
+"g": 93.5,
+"n": 68.9,
+"f": 76.6,
+"max": 93.5,
+"maxm": "REFERENCE GRAPH",
+"min": 68.9,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 1.75 (S280)",
+"cond": "a = 1106 mm, overhang 110 mm",
+"g": 88.5,
+"n": 66.4,
+"f": 74.6,
+"max": 88.5,
+"maxm": "REFERENCE GRAPH",
+"min": 66.4,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 1.75 (S280)",
+"cond": "a = 1126 mm, overhang 90 mm",
+"g": 84,
+"n": 64.1,
+"f": 72.7,
+"max": 84,
+"maxm": "REFERENCE GRAPH",
+"min": 64.1,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 1.75 (S280)",
+"cond": "a = 1146 mm, overhang 70 mm",
+"g": 79.5,
+"n": 61.9,
+"f": 70.9,
+"max": 79.5,
+"maxm": "REFERENCE GRAPH",
+"min": 61.9,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 1.75 (S280)",
+"cond": "a = 1166 mm, overhang 50 mm",
+"g": 75,
+"n": 59.8,
+"f": 69.1,
+"max": 75,
+"maxm": "REFERENCE GRAPH",
+"min": 59.8,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 2.0 (S350)",
+"cond": "a = 966 mm, overhang 250 mm",
+"g": 158.5,
+"n": 120.4,
+"f": 145.9,
+"max": 158.5,
+"maxm": "REFERENCE GRAPH",
+"min": 120.4,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 2.0 (S350)",
+"cond": "a = 986 mm, overhang 230 mm",
+"g": 162,
+"n": 117.3,
+"f": 141.2,
+"max": 162,
+"maxm": "REFERENCE GRAPH",
+"min": 117.3,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 2.0 (S350)",
+"cond": "a = 1006 mm, overhang 210 mm",
+"g": 164,
+"n": 114.3,
+"f": 136.8,
+"max": 164,
+"maxm": "REFERENCE GRAPH",
+"min": 114.3,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 2.0 (S350)",
+"cond": "a = 1026 mm, overhang 190 mm",
+"g": 161.5,
+"n": 111.4,
+"f": 132.7,
+"max": 161.5,
+"maxm": "REFERENCE GRAPH",
+"min": 111.4,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 2.0 (S350)",
+"cond": "a = 1046 mm, overhang 170 mm",
+"g": 152.5,
+"n": 108.7,
+"f": 128.8,
+"max": 152.5,
+"maxm": "REFERENCE GRAPH",
+"min": 108.7,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 2.0 (S350)",
+"cond": "a = 1066 mm, overhang 150 mm",
+"g": 143.5,
+"n": 104.9,
+"f": 125.2,
+"max": 143.5,
+"maxm": "REFERENCE GRAPH",
+"min": 104.9,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 2.0 (S350)",
+"cond": "a = 1086 mm, overhang 130 mm",
+"g": 135.5,
+"n": 101.1,
+"f": 121.8,
+"max": 135.5,
+"maxm": "REFERENCE GRAPH",
+"min": 101.1,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 2.0 (S350)",
+"cond": "a = 1106 mm, overhang 110 mm",
+"g": 128,
+"n": 97.5,
+"f": 118.6,
+"max": 128,
+"maxm": "REFERENCE GRAPH",
+"min": 97.5,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 2.0 (S350)",
+"cond": "a = 1126 mm, overhang 90 mm",
+"g": 121.5,
+"n": 94,
+"f": 115.5,
+"max": 121.5,
+"maxm": "REFERENCE GRAPH",
+"min": 94,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 2.0 (S350)",
+"cond": "a = 1146 mm, overhang 70 mm",
+"g": 115.5,
+"n": 90.7,
+"f": 112.6,
+"max": 115.5,
+"maxm": "REFERENCE GRAPH",
+"min": 90.7,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 2.0 (S350)",
+"cond": "a = 1166 mm, overhang 50 mm",
+"g": 109.5,
+"n": 87.6,
+"f": 109.7,
+"max": 109.7,
+"maxm": "CLOUD FEM",
+"min": 87.6,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 2.25 (S380)",
+"cond": "a = 966 mm, overhang 250 mm",
+"g": 225,
+"n": 157.8,
+"f": 200.9,
+"max": 225,
+"maxm": "REFERENCE GRAPH",
+"min": 157.8,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 2.25 (S380)",
+"cond": "a = 986 mm, overhang 230 mm",
+"g": 230,
+"n": 154.6,
+"f": 194.5,
+"max": 230,
+"maxm": "REFERENCE GRAPH",
+"min": 154.6,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 2.25 (S380)",
+"cond": "a = 1006 mm, overhang 210 mm",
+"g": 234,
+"n": 151.5,
+"f": 188.4,
+"max": 234,
+"maxm": "REFERENCE GRAPH",
+"min": 151.5,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 2.25 (S380)",
+"cond": "a = 1026 mm, overhang 190 mm",
+"g": 225,
+"n": 148.6,
+"f": 182.8,
+"max": 225,
+"maxm": "REFERENCE GRAPH",
+"min": 148.6,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 2.25 (S380)",
+"cond": "a = 1046 mm, overhang 170 mm",
+"g": 212,
+"n": 145.7,
+"f": 177.5,
+"max": 212,
+"maxm": "REFERENCE GRAPH",
+"min": 145.7,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 2.25 (S380)",
+"cond": "a = 1066 mm, overhang 150 mm",
+"g": 200,
+"n": 143,
+"f": 172.6,
+"max": 200,
+"maxm": "REFERENCE GRAPH",
+"min": 143,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 2.25 (S380)",
+"cond": "a = 1086 mm, overhang 130 mm",
+"g": 188,
+"n": 140.4,
+"f": 167.9,
+"max": 188,
+"maxm": "REFERENCE GRAPH",
+"min": 140.4,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 2.25 (S380)",
+"cond": "a = 1106 mm, overhang 110 mm",
+"g": 178,
+"n": 136.2,
+"f": 163.5,
+"max": 178,
+"maxm": "REFERENCE GRAPH",
+"min": 136.2,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 2.25 (S380)",
+"cond": "a = 1126 mm, overhang 90 mm",
+"g": 169,
+"n": 131.3,
+"f": 159.3,
+"max": 169,
+"maxm": "REFERENCE GRAPH",
+"min": 131.3,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 2.25 (S380)",
+"cond": "a = 1146 mm, overhang 70 mm",
+"g": 161,
+"n": 126.6,
+"f": 155.3,
+"max": 161,
+"maxm": "REFERENCE GRAPH",
+"min": 126.6,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 70 x 2.25 (S380)",
+"cond": "a = 1166 mm, overhang 50 mm",
+"g": 152,
+"n": 122.2,
+"f": 151.4,
+"max": 152,
+"maxm": "REFERENCE GRAPH",
+"min": 122.2,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 75 x 1.5 (S250)",
+"cond": "a = 966 mm, overhang 250 mm",
+"g": 60.5,
+"n": 48.6,
+"f": 56.8,
+"max": 60.5,
+"maxm": "REFERENCE GRAPH",
+"min": 48.6,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 75 x 1.5 (S250)",
+"cond": "a = 1006 mm, overhang 210 mm",
+"g": 62.5,
+"n": 46.2,
+"f": 53.5,
+"max": 62.5,
+"maxm": "REFERENCE GRAPH",
+"min": 46.2,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 75 x 1.5 (S250)",
+"cond": "a = 1046 mm, overhang 170 mm",
+"g": 64.5,
+"n": 44,
+"f": 50.4,
+"max": 64.5,
+"maxm": "REFERENCE GRAPH",
+"min": 44,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 75 x 1.5 (S250)",
+"cond": "a = 1106 mm, overhang 110 mm",
+"g": 55,
+"n": 39.6,
+"f": 46.5,
+"max": 55,
+"maxm": "REFERENCE GRAPH",
+"min": 39.6,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 75 x 1.5 (S250)",
+"cond": "a = 1166 mm, overhang 50 mm",
+"g": 47,
+"n": 35.7,
+"f": 43.1,
+"max": 47,
+"maxm": "REFERENCE GRAPH",
+"min": 35.7,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 75 x 1.75 (S280)",
+"cond": "a = 966 mm, overhang 250 mm",
+"g": 96,
+"n": 76.3,
+"f": 87.1,
+"max": 96,
+"maxm": "REFERENCE GRAPH",
+"min": 76.3,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 75 x 1.75 (S280)",
+"cond": "a = 1006 mm, overhang 210 mm",
+"g": 100,
+"n": 72.5,
+"f": 81.8,
+"max": 100,
+"maxm": "REFERENCE GRAPH",
+"min": 72.5,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 75 x 1.75 (S280)",
+"cond": "a = 1046 mm, overhang 170 mm",
+"g": 100.5,
+"n": 69,
+"f": 77.2,
+"max": 100.5,
+"maxm": "REFERENCE GRAPH",
+"min": 69,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 75 x 1.75 (S280)",
+"cond": "a = 1106 mm, overhang 110 mm",
+"g": 84.5,
+"n": 62,
+"f": 71.2,
+"max": 84.5,
+"maxm": "REFERENCE GRAPH",
+"min": 62,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 75 x 1.75 (S280)",
+"cond": "a = 1166 mm, overhang 50 mm",
+"g": 71.5,
+"n": 55.8,
+"f": 66,
+"max": 71.5,
+"maxm": "REFERENCE GRAPH",
+"min": 55.8,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 75 x 2.0 (S350)",
+"cond": "a = 966 mm, overhang 250 mm",
+"g": 143,
+"n": 112.4,
+"f": 139,
+"max": 143,
+"maxm": "REFERENCE GRAPH",
+"min": 112.4,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 75 x 2.0 (S350)",
+"cond": "a = 1006 mm, overhang 210 mm",
+"g": 147.5,
+"n": 106.7,
+"f": 130.5,
+"max": 147.5,
+"maxm": "REFERENCE GRAPH",
+"min": 106.7,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 75 x 2.0 (S350)",
+"cond": "a = 1046 mm, overhang 170 mm",
+"g": 145.5,
+"n": 101.5,
+"f": 123,
+"max": 145.5,
+"maxm": "REFERENCE GRAPH",
+"min": 101.5,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 75 x 2.0 (S350)",
+"cond": "a = 1106 mm, overhang 110 mm",
+"g": 122.5,
+"n": 91.1,
+"f": 113.4,
+"max": 122.5,
+"maxm": "REFERENCE GRAPH",
+"min": 91.1,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 75 x 2.0 (S350)",
+"cond": "a = 1166 mm, overhang 50 mm",
+"g": 104.5,
+"n": 81.9,
+"f": 105,
+"max": 105,
+"maxm": "CLOUD FEM",
+"min": 81.9,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 75 x 2.25 (S380)",
+"cond": "a = 966 mm, overhang 250 mm",
+"g": 203,
+"n": 157.8,
+"f": 191.4,
+"max": 203,
+"maxm": "REFERENCE GRAPH",
+"min": 157.8,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 75 x 2.25 (S380)",
+"cond": "a = 1006 mm, overhang 210 mm",
+"g": 210,
+"n": 149.7,
+"f": 179.7,
+"max": 210,
+"maxm": "REFERENCE GRAPH",
+"min": 149.7,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 75 x 2.25 (S380)",
+"cond": "a = 1046 mm, overhang 170 mm",
+"g": 203,
+"n": 142.2,
+"f": 169.5,
+"max": 203,
+"maxm": "REFERENCE GRAPH",
+"min": 142.2,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 75 x 2.25 (S380)",
+"cond": "a = 1106 mm, overhang 110 mm",
+"g": 170.5,
+"n": 127.4,
+"f": 156.3,
+"max": 170.5,
+"maxm": "REFERENCE GRAPH",
+"min": 127.4,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 75 x 2.25 (S380)",
+"cond": "a = 1166 mm, overhang 50 mm",
+"g": 145.5,
+"n": 114.3,
+"f": 144.8,
+"max": 145.5,
+"maxm": "REFERENCE GRAPH",
+"min": 114.3,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 80 x 1.5 (S250)",
+"cond": "a = 966 mm, overhang 250 mm",
+"g": 56,
+"n": 45.5,
+"f": 52.9,
+"max": 56,
+"maxm": "REFERENCE GRAPH",
+"min": 45.5,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 80 x 1.5 (S250)",
+"cond": "a = 1006 mm, overhang 210 mm",
+"g": 58.5,
+"n": 43.2,
+"f": 50.9,
+"max": 58.5,
+"maxm": "REFERENCE GRAPH",
+"min": 43.2,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 80 x 1.5 (S250)",
+"cond": "a = 1046 mm, overhang 170 mm",
+"g": 59.5,
+"n": 41.2,
+"f": 48.2,
+"max": 59.5,
+"maxm": "REFERENCE GRAPH",
+"min": 41.2,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 80 x 1.5 (S250)",
+"cond": "a = 1106 mm, overhang 110 mm",
+"g": 52.5,
+"n": 37.1,
+"f": 44.5,
+"max": 52.5,
+"maxm": "REFERENCE GRAPH",
+"min": 37.1,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 80 x 1.5 (S250)",
+"cond": "a = 1166 mm, overhang 50 mm",
+"g": 44.5,
+"n": 33.4,
+"f": 41.3,
+"max": 44.5,
+"maxm": "REFERENCE GRAPH",
+"min": 33.4,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 80 x 1.75 (S280)",
+"cond": "a = 966 mm, overhang 250 mm",
+"g": 89,
+"n": 71.4,
+"f": 81.4,
+"max": 89,
+"maxm": "REFERENCE GRAPH",
+"min": 71.4,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 80 x 1.75 (S280)",
+"cond": "a = 1006 mm, overhang 210 mm",
+"g": 92,
+"n": 67.9,
+"f": 78.1,
+"max": 92,
+"maxm": "REFERENCE GRAPH",
+"min": 67.9,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 80 x 1.75 (S280)",
+"cond": "a = 1046 mm, overhang 170 mm",
+"g": 94.5,
+"n": 64.6,
+"f": 73.8,
+"max": 94.5,
+"maxm": "REFERENCE GRAPH",
+"min": 64.6,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 80 x 1.75 (S280)",
+"cond": "a = 1106 mm, overhang 110 mm",
+"g": 81,
+"n": 58.1,
+"f": 68.2,
+"max": 81,
+"maxm": "REFERENCE GRAPH",
+"min": 58.1,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 80 x 1.75 (S280)",
+"cond": "a = 1166 mm, overhang 50 mm",
+"g": 69,
+"n": 52.3,
+"f": 63.2,
+"max": 69,
+"maxm": "REFERENCE GRAPH",
+"min": 52.3,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 80 x 2.0 (S350)",
+"cond": "a = 966 mm, overhang 250 mm",
+"g": 132.5,
+"n": 105.3,
+"f": 132.7,
+"max": 132.7,
+"maxm": "CLOUD FEM",
+"min": 105.3,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 80 x 2.0 (S350)",
+"cond": "a = 1006 mm, overhang 210 mm",
+"g": 137,
+"n": 100,
+"f": 124.7,
+"max": 137,
+"maxm": "REFERENCE GRAPH",
+"min": 100,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 80 x 2.0 (S350)",
+"cond": "a = 1046 mm, overhang 170 mm",
+"g": 140,
+"n": 95.2,
+"f": 117.7,
+"max": 140,
+"maxm": "REFERENCE GRAPH",
+"min": 95.2,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 80 x 2.0 (S350)",
+"cond": "a = 1106 mm, overhang 110 mm",
+"g": 118,
+"n": 85.4,
+"f": 108.6,
+"max": 118,
+"maxm": "REFERENCE GRAPH",
+"min": 85.4,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 80 x 2.0 (S350)",
+"cond": "a = 1166 mm, overhang 50 mm",
+"g": 101,
+"n": 76.8,
+"f": 100.6,
+"max": 101,
+"maxm": "REFERENCE GRAPH",
+"min": 76.8,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 80 x 2.25 (S380)",
+"cond": "a = 966 mm, overhang 250 mm",
+"g": 188,
+"n": 148,
+"f": 182.7,
+"max": 188,
+"maxm": "REFERENCE GRAPH",
+"min": 148,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 80 x 2.25 (S380)",
+"cond": "a = 1006 mm, overhang 210 mm",
+"g": 194,
+"n": 140.4,
+"f": 171.7,
+"max": 194,
+"maxm": "REFERENCE GRAPH",
+"min": 140.4,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 80 x 2.25 (S380)",
+"cond": "a = 1046 mm, overhang 170 mm",
+"g": 195.5,
+"n": 133.4,
+"f": 162.1,
+"max": 195.5,
+"maxm": "REFERENCE GRAPH",
+"min": 133.4,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 80 x 2.25 (S380)",
+"cond": "a = 1106 mm, overhang 110 mm",
+"g": 165,
+"n": 119.6,
+"f": 149.7,
+"max": 165,
+"maxm": "REFERENCE GRAPH",
+"min": 119.6,
+"minm": "NORDEN NON-FEM"
+},
+{
+"angle": "L 70 x 80 x 2.25 (S380)",
+"cond": "a = 1166 mm, overhang 50 mm",
+"g": 140.5,
+"n": 107.4,
+"f": 138.7,
+"max": 140.5,
+"maxm": "REFERENCE GRAPH",
+"min": 107.4,
+"minm": "NORDEN NON-FEM"
+}
+];
+function drawCap() {
+  const M = ['Reference Graph', 'Norden Non-FEM', 'Cloud FEM'], K = ['g', 'n', 'f'];
+  const cellv = (c, k) => { const v = c[k], mx = c.max === v; return `<td${mx ? ' style="background:var(--pass-bg);color:var(--pass);font-weight:700"' : ''}>${v == null ? '–' : v.toFixed(1)}</td>`; };
+  document.getElementById('cap').innerHTML = '<tr><th>No.</th><th>Angle type / size</th><th style="text-align:left">Loading condition</th><th>Reference Graph kg</th><th>Norden Non-FEM kg</th><th>Cloud FEM kg</th><th>Final maximum kg</th><th style="text-align:left">Method (max)</th><th>Governing (lower) kg</th></tr>' +
+    CAP.map((c, i) => `<tr><td>${i + 1}</td><td>${c.angle}</td><td class="note">${c.cond}</td>${K.map(k => cellv(c, k)).join('')}<td><b>${c.max.toFixed(1)}</b></td><td class="note">${c.maxm}</td><td>${c.min.toFixed(1)} <span class="sub">${c.minm}</span></td></tr>`).join('');
+  const top = k => CAP.reduce((m, c) => (c[k] ?? -1) > (m[k] ?? -1) ? c : m);
+  const g = top('g'), n = top('n'), f = top('f'), x = top('max');
+  document.getElementById('capmax').innerHTML = '<tr><th>Result</th><th>Capacity kg</th><th style="text-align:left">Angle and condition</th></tr>' + [
+    ['Maximum – Reference Graph', g.g, g], ['Maximum – Norden Non-FEM', n.n, n], ['Maximum – Cloud FEM', f.f, f],
+    ['FINAL MAXIMUM CALCULATED CAPACITY OF THE ANGLE (' + x.maxm + ')', x.max, x], ['Governing (lower of the three) for the same angle, for design (' + x.minm + ')', x.min, x]]
+    .map(([l, v, c], i) => `<tr${i === 3 ? ' style="background:var(--pass-bg)"' : ''}><td><b>${l}</b></td><td><b>${v.toFixed(1)}</b></td><td class="note">${c.angle}, ${c.cond}</td></tr>`).join('');
+  const W = 760, H = 280, m = { l: 44, r: 12, t: 12, b: 36 }, N = CAP.length;
+  const ymax = 250, X = i => m.l + i / (N - 1) * (W - m.l - m.r), Y = v => m.t + (1 - v / ymax) * (H - m.t - m.b);
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Capacity per configuration">`;
+  for (let v = 0; v <= ymax; v += 50) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${m.l - 6}" y="${Y(v) + 4}" text-anchor="end" class="muted">${v}</text>`;
+  [[0, 'Lu 70'], [44, 'Lu 75'], [64, 'Lu 80']].forEach(([i, t]) => { s += `<line x1="${X(i)}" x2="${X(i)}" y1="${m.t}" y2="${H - m.b}" stroke="var(--muted)" stroke-dasharray="3 3"/><text x="${X(i) + 4}" y="${m.t + 12}" class="muted">${t}</text>`; });
+  for (let i = 0; i < N; i += 11) s += `<text x="${X(i)}" y="${H - m.b + 15}" text-anchor="middle" class="muted">${i + 1}</text>`;
+  s += `<text x="${(W + m.l) / 2}" y="${H - 4}" text-anchor="middle" class="muted">Configuration No. (thickness 1.5 → 2.25 within each leg length; frame depth 966 → 1166)</text>`;
+  [['g', 'var(--c2)', 3], ['n', '#c55a11', 2], ['f', 'var(--c1)', 2]].forEach(([k, col, w]) => {
+    s += `<path d="M${CAP.map((c, i) => `${X(i).toFixed(1)},${Y(c[k]).toFixed(1)}`).join('L')}" fill="none" stroke="${col}" stroke-width="${w}"/>`; });
+  document.getElementById('capchart').innerHTML = s + '</svg>';
+}
+drawCap();
+
 </script>
 </body>
 </html>
