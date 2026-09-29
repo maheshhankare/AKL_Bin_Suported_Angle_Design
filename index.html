@@ -72,7 +72,7 @@ svg text{fill:var(--ink);font:12px system-ui,Arial,sans-serif}svg .muted{fill:va
 <main>
   <aside>
     <div class="panel"><h2>Inputs</h2><div id="inputs"></div>
-      <p class="sub">Yellow = input. Everything else is calculated. Values are kept in this browser only.</p></div>
+      <p class="sub">Yellow = input. Everything else is calculated. Span a between the bolt lines is derived: a = number of bins × bin length − overhang b. Bin mass stays an input because it is the load being checked. Values are kept in this browser only.</p></div>
     <div class="panel"><h2>Fixed and derived properties</h2><div class="scroll"><table id="fixed" class="fixed"></table></div></div>
   </aside>
   <section>
@@ -114,19 +114,22 @@ const BOLTS = {}; for (const s in BOLT_SIZES) for (const c in BOLT_CLASSES) BOLT
 const RIVETS = { 'Blind rivet Ø6 steel/steel (drawing)': { d: 6.0, d0: 6.35, dw: 11.4, Fv: 4400, Ft: 6000, gripMin: 2.8, gripMax: 7.0, hole: '6.2–6.5' } };
 const FIXED = { E: 210000, nu: 0.3, gM0: 1.0, gM1: 1.0, gM2: 1.25, rho: 7850, g: 9.81, share: 0.5, rim: 3, endX: 20 };
 const DEFAULT_INPUTS = {
-  h: 60, b: 70, t: 2.5, xs: 10, e: 62.5, zb: 30, a: 900, ov: 300,
-  binL: 400, binW: 600, binH: 300, nbin: 2, mbin: 50,
+  h: 60, b: 70, t: 2.5, xs: 10, e: 62.5, zb: 30, ov: 300,
+  binL: 600, binW: 400, binH: 300, nbin: 2, mbin: 50,
   grade: 'S350GD', fuOver: 0, gULS: 1.4, gSLS: 1.0,
   conn: 'Bolt', bolt: 'M8 8.8', rivet: 'Blind rivet Ø6 steel/steel (drawing)',
-  limG: 200, limC: 100, limO: 300, limTip: 3, limRel: 1.5,
 };
+// serviceability limits: fixed assumptions (confirm with the handling device supplier), not user inputs
+const LIMITS = { limG: 200, limC: 100, limO: 300, limTip: 3, limRel: 1.5 };
 // FE calibration: FE / hand = exp(c0 + ct ln t + cb ln b + ca ln a + cov ln ov + ch ln h + cz ln zb); lam is the FE buckling factor per 1 N/mm itself
 const CAL_VARS = ['t', 'b', 'a', 'ov', 'h', 'zb'];
 let CAL = {"vm":[-1.742698,-0.012785,0.460945,0.011797,0.002025,0.045293,-0.095799],"leg":[-3.770094,0.007147,0.048148,0.953188,-0.000908,-0.118923,-0.269979],"heelMid":[-0.365654,-0.009774,0.207609,-0.126297,0.008285,0.046223,-0.003612],"heelOv":[-1.586909,-0.014202,0.42779,-0.172538,-0.034837,0.207084,0.012923],"twMid":[-0.055297,0.018701,0.101759,-0.016331,-0.004762,-0.037208,-0.019966],"twOv":[0,0,0,0,0,0,0],"tip":[-0.176249,0.009395,0.085939,-0.00279,-0.003193,-0.019314,-0.019699],"rel":[-0.109673,0.02038,0.071987,0.007233,-0.004543,-0.036465,-0.01947],"V":[-0.000165,0.000001,0.000004,0.000019,0.000005,-0.000004,0.000005],"Ft":[-0.027618,-0.000146,0.008585,-0.007154,0.000066,0.009947,0.002659],"lam":[14.675632,2.983151,0.172313,-2.048687,0.089515,-0.516941,-0.023099]};
 const CAL_RANGE = {"t":[1.5,3],"b":[50,80],"a":[900,1166],"ov":[50,300],"h":[60,70],"zb":[20,40]};
 
-function calc(I) {
+function calc(I0) {
   const F = FIXED, r = { warn: [] };
+  // span a between bolt lines is derived: the bins fill the loaded length a + b
+  const I = r.I = Object.assign({}, I0, LIMITS); I.aRaw = I.nbin * I.binL - I.ov; I.a = Math.max(50, I.aRaw);
   const [fy, fuG] = GRADES[I.grade]; const fu = I.fuOver > 0 ? I.fuOver : fuG; r.fy = fy; r.fu = fu;
   // section (mid-line model, heel at origin)
   const S = r.sec = {};
@@ -250,12 +253,12 @@ function calc(I) {
   if (G.stripOut > I.b - I.t + 1e-9) W.push(`Bearing strip (e + xs/2 = ${G.stripOut.toFixed(1)} mm) extends past the horizontal leg (b − t = ${(I.b - I.t).toFixed(1)} mm).`);
   if (G.stripIn < 0) W.push('Bearing strip reaches inside the vertical leg: increase e.');
   if (I.zb - C.d0 / 2 < I.t || I.zb + C.d0 / 2 > I.h) W.push(`${I.conn} hole (Ø${C.d0}) does not fit on the vertical leg between the horizontal leg and the top edge.`);
-  if (G.bearTot > G.Ltot) W.push(`${I.nbin} bins × ${I.binL} mm = ${G.bearTot} mm do not fit on a + b = ${G.Ltot} mm.`);
+  if (I.aRaw < 300) W.push(`Span a = bins × bin length − overhang = ${I.nbin} × ${I.binL} − ${I.ov} = ${I.aRaw} mm is below 300 mm: check the bin length, number of bins and overhang.`);
   if (I.conn === 'Rivet' && I.t > C.gripMax) W.push(`Angle thickness exceeds the rivet grip range (${C.gripMin}–${C.gripMax} mm incl. upright).`);
   if (!r.inRange) W.push('Inputs are outside the FE calibration range: FE-calibrated values are extrapolated.');
   return r;
 }
-if (typeof module !== 'undefined') module.exports = { calc, DEFAULT_INPUTS, GRADES, BOLTS, RIVETS, FIXED, setCal: (c, rg) => { CAL = c; Object.assign(CAL_RANGE, rg); } };
+if (typeof module !== 'undefined') module.exports = { calc, DEFAULT_INPUTS, LIMITS, GRADES, BOLTS, RIVETS, FIXED, setCal: (c, rg) => { CAL = c; Object.assign(CAL_RANGE, rg); } };
 
 const CAP = [
 {
@@ -1185,16 +1188,15 @@ const CAP = [
 ];
 const GROUPS = [
   ['Angle section', [['h', 'Vertical leg height', 'mm'], ['b', 'Horizontal leg length', 'mm'], ['t', 'Thickness', 'mm'], ['xs', 'Bearing strip width', 'mm'], ['e', 'Load eccentricity e from inner face of vertical leg', 'mm']]],
-  ['Support and connection', [['zb', 'Bolt / rivet height from bottom', 'mm'], ['a', 'Span a between bolt lines', 'mm'], ['ov', 'Overhang b beyond bolt line B', 'mm'],
+  ['Support and connection', [['zb', 'Bolt / rivet height from bottom', 'mm'], ['ov', 'Overhang b beyond bolt line B', 'mm'],
     ['conn', 'Connection type', '', ['Bolt', 'Rivet']], ['bolt', 'Bolt size and class', '', Object.keys(BOLTS)], ['rivet', 'Rivet (from drawing)', '', Object.keys(RIVETS)]]],
   ['Bins', [['binL', 'Bin length along the angle', 'mm'], ['binW', 'Bin width', 'mm'], ['binH', 'Bin height', 'mm'], ['nbin', 'Number of bins along one angle', '-'], ['mbin', 'Max gross bin mass', 'kg']]],
   ['Material and factors', [['grade', 'Material grade', '', Object.keys(GRADES)], ['fuOver', 'fu override (0 = from grade)', 'MPa'], ['gULS', 'ULS load factor', '-'], ['gSLS', 'SLS load factor', '-']]],
-  ['Serviceability limits (assumed)', [['limG', 'Span heel limit a / …', '-'], ['limC', 'Overhang limit b / …', '-'], ['limO', 'Leg tip limit a / …', '-'], ['limTip', 'Leg tip absolute limit', 'mm'], ['limRel', 'Bin tilt limit', 'mm']]],
 ];
-const RANGES = { h: [30, 150], b: [30, 150], t: [0.75, 6], xs: [2, 40], e: [5, 145], zb: [5, 145], a: [300, 3000], ov: [1, 1000], binL: [100, 1000], binW: [100, 1200], binH: [50, 800],
-  nbin: [1, 10], mbin: [1, 500], fuOver: [0, 1000], gULS: [1, 2], gSLS: [0.5, 1.5], limG: [50, 1000], limC: [50, 1000], limO: [50, 1000], limTip: [0.1, 50], limRel: [0.1, 50] };
+const RANGES = { h: [30, 150], b: [30, 150], t: [0.75, 6], xs: [2, 40], e: [5, 145], zb: [5, 145], ov: [1, 1000], binL: [100, 1000], binW: [100, 1200], binH: [50, 800],
+  nbin: [1, 10], mbin: [1, 500], fuOver: [0, 1000], gULS: [1, 2], gSLS: [0.5, 1.5] };
 const store = { get(k) { try { return JSON.parse(localStorage.getItem(k)) } catch (e) { return null } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)) } catch (e) {} } };
-let I = Object.assign({}, DEFAULT_INPUTS, store.get('akl3_inputs') || {});
+let I = Object.assign({}, DEFAULT_INPUTS, store.get('akl4_inputs') || {});
 const f = (v, d = 2) => (v === undefined || v === null || !isFinite(v)) ? '–' : Math.abs(v) >= 1e5 ? v.toExponential(3) : v.toFixed(d);
 const tag = p => `<span class="tag ${p ? 'pass' : 'fail'}">${p ? 'PASS' : 'FAIL'}</span>`;
 function buildInputs() {
@@ -1204,8 +1206,8 @@ function buildInputs() {
   document.querySelectorAll('#inputs input').forEach(el => el.addEventListener('input', () => {
     const k = el.id.slice(3), v = parseFloat(el.value), [lo, hi] = RANGES[k], ok = isFinite(v) && v >= lo && v <= hi;
     el.classList.toggle('bad', !ok); el.title = ok ? '' : `Enter a value between ${lo} and ${hi}`;
-    if (ok) { I[k] = v; store.set('akl3_inputs', I); update(); } }));
-  document.querySelectorAll('#inputs select').forEach(el => el.addEventListener('change', () => { I[el.id.slice(3)] = el.value; store.set('akl3_inputs', I); update(); }));
+    if (ok) { I[k] = v; store.set('akl4_inputs', I); update(); } }));
+  document.querySelectorAll('#inputs select').forEach(el => el.addEventListener('change', () => { I[el.id.slice(3)] = el.value; store.set('akl4_inputs', I); update(); }));
 }
 let R;
 function update() {
@@ -1227,11 +1229,12 @@ function update() {
     `<tr><td>Twist at midspan (°), information</td>${R.cases.map(c => `<td colspan="4">${f(c.S.twMid * 180 / Math.PI)}</td>`).join('')}<td></td><td class="note">FE-calibrated</td></tr>`;
   document.getElementById('fixed').innerHTML = [['E', `${FIXED.E} MPa`], ['ν', FIXED.nu], ['γM0 / γM1 / γM2', `${FIXED.gM0} / ${FIXED.gM1} / ${FIXED.gM2}`], ['fy / fu', `${R.fy} / ${R.fu} MPa`],
     ['Area / mass', `${f(S.Ar, 1)} mm² / ${f(S.kgm, 3)} kg/m`], ['J / I_eff', `${f(S.Jt, 1)} / ${f(S.Ieff, 0)} mm⁴`], ['Outstand c/t, ρ', `${f(S.cOt)}, ${f(R.aux.rho, 3)}`],
-    ['Share of a bin per angle', FIXED.share], ['Rim contact width', `${FIXED.rim} mm`], ['Angle end to bolt line A', `${FIXED.endX} mm`]].map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('');
+    ['Share of a bin per angle', FIXED.share], ['Rim contact width', `${FIXED.rim} mm`], ['Angle end to bolt line A', `${FIXED.endX} mm`],
+    ['Span heel limit / overhang limit', `a/${LIMITS.limG} / b/${LIMITS.limC}`], ['Leg tip limit', `min(a/${LIMITS.limO}, ${LIMITS.limTip} mm)`], ['Bin tilt limit (tip rel. heel)', `${LIMITS.limRel} mm (assumed)`]].map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('');
   document.getElementById('loads').innerHTML = `<tr><th>Quantity</th><th>Value</th><th style="text-align:left">Formula</th></tr>` + [
     ['Torque lever arm (heel mid-line to load)', `${f(G.ecc)} mm`, 'e + t/2'], ['Effective cantilever arm of horizontal leg', `${f(G.arm)} mm`, 'e (inner face to load)'],
     ['Load to free edge of horizontal leg', `${f(G.tipDist)} mm`, 'b − t − e'], ['Bin bearing length along the angle', `${f(G.lb, 0)} mm`, 'bin length'],
-    ['Loaded length a + b', `${f(G.Ltot, 0)} mm`, ''], ['Load of one bin on one angle', `${f(L.Pbin, 1)} N`, 'm·g·0.5'], ['Angle self-weight', `${f(L.wsw, 4)} N/mm`, 'A·ρ·g'],
+    ['Span a between bolt lines (derived)', `${f(R.I.a, 0)} mm`, 'n_bin · bin length − b'], ['Loaded length a + b', `${f(G.Ltot, 0)} mm`, 'n_bin · bin length'], ['Load of one bin on one angle', `${f(L.Pbin, 1)} N`, 'm·g·0.5'], ['Angle self-weight', `${f(L.wsw, 4)} N/mm`, 'A·ρ·g'],
     ['Case 1 bin line load (characteristic)', `${f(L.wb1, 3)} N/mm`, 'P_bin / bearing length'], ['Case 2 bin line load (characteristic)', `${f(L.wb2, 3)} N/mm`, 'n·P_bin / (a + b)'],
     ['Case 1 ULS / SLS vertical line load', `${f(R.cases[0].U.w, 3)} / ${f(R.cases[0].S.w, 3)} N/mm`, 'γ·(w_bin + w_sw)'],
     ['Case 2 ULS / SLS vertical line load', `${f(R.cases[1].U.w, 3)} / ${f(R.cases[1].S.w, 3)} N/mm`, 'γ·(w_bin + w_sw)'],
@@ -1303,9 +1306,9 @@ function drawElev() {
     s += `<rect x="${X(xa)}" y="${yb - 70}" width="${X(xb) - X(xa)}" height="58" fill="url(#hatch)" stroke="var(--muted)"/>`;
     s += `<text x="${(X(xa) + X(xb)) / 2}" y="${yb - 38}" text-anchor="middle" class="muted">bin ${k + 1}</text>`; }
   s += `<rect x="${X(-FIXED.endX)}" y="${yb - 10}" width="${X(tot) - X(-FIXED.endX)}" height="10" fill="var(--steel)" stroke="var(--ink)"/>`;
-  for (const [x, t] of [[0, 'A'], [I.a, 'B']]) s += `<circle cx="${X(x)}" cy="${yb - 5}" r="3.5" fill="var(--ink)"/><rect x="${X(x) - 5}" y="${yb}" width="10" height="36" fill="var(--plate)" stroke="var(--ink)"/><text x="${X(x)}" y="${yb + 52}" text-anchor="middle">${t}</text>`;
+  for (const [x, t] of [[0, 'A'], [R.I.a, 'B']]) s += `<circle cx="${X(x)}" cy="${yb - 5}" r="3.5" fill="var(--ink)"/><rect x="${X(x) - 5}" y="${yb}" width="10" height="36" fill="var(--plate)" stroke="var(--ink)"/><text x="${X(x)}" y="${yb + 52}" text-anchor="middle">${t}</text>`;
   s += `<text x="${X(tot)}" y="${yb + 22}" text-anchor="end" class="muted">free end</text>`;
-  s += arrowDim(X(0), yb + 70, X(I.a), yb + 70, `a = ${I.a}`, -5) + arrowDim(X(I.a), yb + 70, X(tot), yb + 70, `b = ${I.ov}`, -5);
+  s += arrowDim(X(0), yb + 70, X(R.I.a), yb + 70, `a = ${R.I.a}`, -5) + arrowDim(X(R.I.a), yb + 70, X(tot), yb + 70, `b = ${I.ov}`, -5);
   s += arrowDim(X(0), yb + 100, X(Math.min(lb, tot)), yb + 100, `bin length ${lb}`, -5);
   s += `<text x="${W / 2}" y="${yb - 90}" text-anchor="middle" style="fill:var(--load)">${n} bin(s) × ${I.mbin} kg, one bolt/rivet at A and at B</text>`;
   document.getElementById('sk2').innerHTML = s + '</svg>';
@@ -1322,10 +1325,10 @@ function drawChart() {
   let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Deflection along the angle">`;
   for (let k = 0; k <= nT; k++) { const y = ymin + step * k; s += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(y)}" y2="${Y(y)}" stroke="var(--line)"/><text x="${m.l - 6}" y="${Y(y) + 4}" text-anchor="end" class="muted">${f(y, 1)}</text>`; }
   for (let k = 0; k <= 6; k++) { const x = L * k / 6; s += `<text x="${X(x)}" y="${H - m.b + 16}" text-anchor="middle" class="muted">${Math.round(x)}</text>`; }
-  s += `<line x1="${X(I.a)}" x2="${X(I.a)}" y1="${m.t}" y2="${H - m.b}" stroke="var(--muted)" stroke-dasharray="4 3"/><text x="${X(I.a) + 4}" y="${m.t + 12}" class="muted">bolt line B</text>`;
+  s += `<line x1="${X(R.I.a)}" x2="${X(R.I.a)}" y1="${m.t}" y2="${H - m.b}" stroke="var(--muted)" stroke-dasharray="4 3"/><text x="${X(R.I.a) + 4}" y="${m.t + 12}" class="muted">bolt line B</text>`;
   s += `<text x="${(W + m.l) / 2}" y="${H - 6}" text-anchor="middle" class="muted">x from bolt line A (mm)</text><text transform="translate(13 ${(H - m.b) / 2}) rotate(-90)" text-anchor="middle" class="muted">mm, down +</text>`;
   s += `<path d="${path(heel)}" fill="none" stroke="var(--c2)" stroke-width="2"/><path d="${path(ser[1])}" fill="none" stroke="var(--c3)" stroke-width="2"/><path d="${path(ser[0])}" fill="none" stroke="var(--c1)" stroke-width="2.5"/>`;
-  const lim = Math.min(I.a / I.limO, I.limTip);
+  const lim = Math.min(R.I.a / R.I.limO, R.I.limTip);
   if (lim <= ymax) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(lim)}" y2="${Y(lim)}" stroke="var(--fail)" stroke-dasharray="2 3"/><text x="${W - m.r - 4}" y="${Y(lim) - 4}" text-anchor="end" style="fill:var(--fail)">tip limit ${f(lim, 1)} mm</text>`;
   document.getElementById('chart').innerHTML = s + '</svg>';
 }
@@ -1350,7 +1353,7 @@ function drawCap() {
   [['g', 'var(--c2)', 3], ['n', '#c55a11', 2], ['f', 'var(--c1)', 2]].forEach(([k, col, w]) => { s += `<path d="M${CAP.map((c, i) => `${X(i).toFixed(1)},${Y(c[k]).toFixed(1)}`).join('L')}" fill="none" stroke="${col}" stroke-width="${w}"/>`; });
   document.getElementById('capchart').innerHTML = s + '</svg>';
 }
-document.getElementById('reset').onclick = () => { I = Object.assign({}, DEFAULT_INPUTS); store.set('akl3_inputs', null); buildInputs(); update(); };
+document.getElementById('reset').onclick = () => { I = Object.assign({}, DEFAULT_INPUTS); store.set('akl4_inputs', null); buildInputs(); update(); };
 document.getElementById('theme').onclick = () => { const d = document.documentElement; const dark = d.dataset.theme ? d.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; d.dataset.theme = dark ? 'light' : 'dark'; };
 document.getElementById('csv').onclick = () => {
   const q = v => typeof v === 'number' ? String(v) : `"${String(v).replace(/"/g, '""')}"`;
