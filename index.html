@@ -7,49 +7,56 @@
 <link rel="icon" href="data:,">
 <style>
 :root{--bg:#f5f6f8;--panel:#fff;--ink:#1c2430;--muted:#5d6878;--line:#dde2e8;--accent:#2f5b8f;--accent-soft:#e6eef8;
---pass:#1f7a45;--pass-bg:#e3f4ea;--fail:#b3261e;--fail-bg:#fbe7e6;--warn:#8a5a00;--warn-bg:#fff4d6;--input:#fbfcfd;--load:#c2413b;--c1:#2f5b8f;--c2:#8a94a3;--c3:#c2413b;}
+--pass:#1f7a45;--pass-bg:#e3f4ea;--fail:#b3261e;--fail-bg:#fbe7e6;--warn:#a04a00;--warn-bg:#fde8d7;--in:#ffef5c;--in-ink:#1c2430;--in-line:#c9b400;
+--load:#c2413b;--c1:#2f5b8f;--c2:#8a94a3;--c3:#c2413b;--steel:#8fa8c8;--plate:#b8bec7;--uls:#fce4d6;--sls:#ddebf7;--fe:#ece6f5;}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12161c;--panel:#1b2129;--ink:#e6eaf0;--muted:#9aa5b4;--line:#2d3540;--accent:#7fa9dc;--accent-soft:#223246;
---pass:#6fd39a;--pass-bg:#173326;--fail:#ff8a80;--fail-bg:#3a1c1b;--warn:#f1c35c;--warn-bg:#3a2f14;--input:#151a21;--load:#ff8a80;--c1:#7fa9dc;--c2:#8d97a6;--c3:#ff8a80;}}
+--pass:#6fd39a;--pass-bg:#173326;--fail:#ff8a80;--fail-bg:#3a1c1b;--warn:#ffb074;--warn-bg:#3a2415;--in:#e3cf2e;--in-ink:#111;--in-line:#f5e36b;
+--load:#ff8a80;--c1:#7fa9dc;--c2:#8d97a6;--c3:#ff8a80;--steel:#56739a;--plate:#4a515b;--uls:#3a281c;--sls:#1d2c3d;--fe:#2a2436;}}
 :root[data-theme="dark"]{--bg:#12161c;--panel:#1b2129;--ink:#e6eaf0;--muted:#9aa5b4;--line:#2d3540;--accent:#7fa9dc;--accent-soft:#223246;
---pass:#6fd39a;--pass-bg:#173326;--fail:#ff8a80;--fail-bg:#3a1c1b;--warn:#f1c35c;--warn-bg:#3a2f14;--input:#151a21;--load:#ff8a80;--c1:#7fa9dc;--c2:#8d97a6;--c3:#ff8a80;}
+--pass:#6fd39a;--pass-bg:#173326;--fail:#ff8a80;--fail-bg:#3a1c1b;--warn:#ffb074;--warn-bg:#3a2415;--in:#e3cf2e;--in-ink:#111;--in-line:#f5e36b;
+--load:#ff8a80;--c1:#7fa9dc;--c2:#8d97a6;--c3:#ff8a80;--steel:#56739a;--plate:#4a515b;--uls:#3a281c;--sls:#1d2c3d;--fe:#2a2436;}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
 header{background:var(--panel);border-bottom:1px solid var(--line);padding:14px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
-h1{font-size:18px;margin:0}
-.sub{color:var(--muted);font-size:12.5px}
+h1{font-size:18px;margin:0}.sub{color:var(--muted);font-size:12.5px}
 .btns{display:flex;gap:6px;flex-wrap:wrap}
 button{font:inherit;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:6px;padding:6px 11px;cursor:pointer}
 button:hover{border-color:var(--accent)}
-main{display:grid;grid-template-columns:340px 1fr;gap:16px;padding:16px;max-width:1500px;margin:0 auto}
+main{display:grid;grid-template-columns:360px minmax(0,1fr);gap:16px;padding:16px;max-width:1500px;margin:0 auto}
 @media (max-width:900px){main{grid-template-columns:minmax(0,1fr)}}
 main>*{min-width:0}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:16px;min-width:0}
 .panel h2{font-size:15px;margin:0 0 10px}
-details.grp{border-top:1px solid var(--line);padding:6px 0}
-details.grp:first-of-type{border-top:0}
+.panel h2 .pill{font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:10px;margin-left:6px;vertical-align:middle}
+.pill.uls{background:var(--uls)}.pill.sls{background:var(--sls)}.pill.fe{background:var(--fe)}
+details.grp{border-top:1px solid var(--line);padding:6px 0}details.grp:first-of-type{border-top:0}
 details.grp summary{cursor:pointer;font-weight:600;padding:4px 0}
-.field{display:grid;grid-template-columns:1fr 92px 44px;gap:6px;align-items:center;margin:5px 0}
+.field{display:grid;grid-template-columns:1fr 120px 40px;gap:6px;align-items:center;margin:5px 0}
 .field label{font-size:12.5px}
-.field input{width:100%;font:inherit;padding:4px 6px;border:1px solid var(--line);border-radius:5px;background:var(--input);color:var(--ink);text-align:right}
-.field input.key{border-color:var(--warn);background:var(--warn-bg)}
+.field input,.field select{width:100%;font:inherit;padding:4px 6px;border:1px solid var(--in-line);border-radius:5px;background:var(--in);color:var(--in-ink);text-align:right}
+.field select{text-align:left}
+.field input.bad{outline:2px solid var(--fail)}
 .field .u{font-size:12px;color:var(--muted)}
+.fixed td{color:var(--muted);white-space:normal}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:16px}
 .tile{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;border-left:5px solid var(--line)}
-.tile.pass{border-left-color:var(--pass)}.tile.fail{border-left-color:var(--fail)}.tile.warn{border-left-color:var(--warn)}
+.tile.pass{border-left-color:var(--pass)}.tile.fail{border-left-color:var(--fail)}
 .tile .k{font-size:12px;color:var(--muted)}.tile .v{font-size:22px;font-weight:650;margin:2px 0}.tile .d{font-size:12.5px}
 .scroll{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:13px}
 th,td{padding:5px 7px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
-th{background:var(--accent-soft);font-weight:600;position:sticky;top:0}
-td:first-child,th:first-child{text-align:left;white-space:normal;min-width:180px}
-td.note{text-align:left;color:var(--muted);white-space:normal;min-width:180px}
+th{background:var(--accent-soft);font-weight:600}
+td:first-child,th:first-child{text-align:left;white-space:normal;min-width:170px}
+td.note{text-align:left;color:var(--muted);white-space:normal;min-width:170px}
+tr.fe td{background:var(--fe)}
 .band td{background:var(--bg);font-weight:600;text-align:left}
 .tag{display:inline-block;padding:1px 8px;border-radius:10px;font-weight:600;font-size:12px}
 .tag.pass{background:var(--pass-bg);color:var(--pass)}.tag.fail{background:var(--fail-bg);color:var(--fail)}
 .banner{border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:13px}
 .banner.warn{background:var(--warn-bg);color:var(--warn)}.banner.ok{background:var(--pass-bg);color:var(--pass)}
-svg text{fill:var(--ink);font:12px system-ui,Arial,sans-serif}
-svg .muted{fill:var(--muted)}
+.banner ul{margin:4px 0 0 18px;padding:0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media (max-width:1100px){.two{grid-template-columns:1fr}}
+svg text{fill:var(--ink);font:12px system-ui,Arial,sans-serif}svg .muted{fill:var(--muted)}svg .dim{fill:var(--accent);font-weight:600}
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin-top:4px}
 .legend i{display:inline-block;width:18px;height:3px;vertical-align:middle;margin-right:5px}
 .foot{color:var(--muted);font-size:12px;padding:0 16px 24px;max-width:1500px;margin:0 auto}
@@ -59,304 +66,204 @@ svg .muted{fill:var(--muted)}
 <body>
 <header>
   <div><h1>AKL bin support angle: design check</h1>
-  <div class="sub">Span a between bolt lines + overhang b, line load over a + b on the horizontal leg tip. Same calculation as AKL_angle_design_Claude_R1.xlsx.</div></div>
+  <div class="sub">One bolt or rivet per end, heel bearing on the upright. Span a + overhang b. Same calculation as the Excel workbook (sheets Inputs to SLS_Results).</div></div>
   <div class="btns"><button id="reset">Reset to defaults</button><button id="csv">Download results (CSV)</button><button onclick="window.print()">Print</button><button id="theme">Light / dark</button></div>
 </header>
 <main>
   <aside>
     <div class="panel"><h2>Inputs</h2><div id="inputs"></div>
-      <p class="sub">Yellow fields are key inputs to confirm. Values are kept in this browser only.</p></div>
-    <div class="panel noprint"><h2>FE results (advanced)</h2>
-      <p class="sub">Shell FE results per 1 N/mm used for the correction factors and the buckling check. After a new FE run, enter its geometry and results here.</p>
-      <details class="grp"><summary>Edit FE values</summary><div id="feinputs"></div></details></div>
+      <p class="sub">Yellow = input. Everything else is calculated. Values are kept in this browser only.</p></div>
+    <div class="panel"><h2>Fixed and derived properties</h2><div class="scroll"><table id="fixed" class="fixed"></table></div></div>
   </aside>
   <section>
-    <div id="febanner"></div>
+    <div id="banner"></div>
     <div class="tiles" id="tiles"></div>
-    <div class="panel"><h2>Line load on one angle (calculated)</h2><div class="scroll"><table id="loads"></table></div><p class="sub" id="loadnote"></p></div>
-    <div class="panel"><h2>Design checks</h2><div class="scroll"><table id="checks"></table></div></div>
-    <div class="panel"><h2 id="charttitle">Leg tip deflection along the angle (SLS)</h2><div id="chart"></div>
-      <div class="legend"><span><i style="background:var(--c1)"></i>Leg tip (hand)</span><span><i style="background:var(--c2)"></i>Heel (hand)</span><span id="felg"><i style="background:var(--c3)"></i>Leg tip (FE)</span></div></div>
-    <div class="panel"><h2>Beam condition</h2><div id="sketch"></div></div>
+    <div class="panel"><h2>Sketch</h2><div class="two"><div id="sk1"></div><div id="sk2"></div></div></div>
+    <div class="panel"><h2>ULS results<span class="pill uls">ULS loads × γ_ULS</span></h2><div class="scroll"><table id="uls"></table></div></div>
+    <div class="panel"><h2>SLS results<span class="pill sls">SLS loads × γ_SLS</span></h2><div class="scroll"><table id="sls"></table></div></div>
+    <div class="panel"><h2>Loads and geometry (calculated)</h2><div class="scroll"><table id="loads"></table></div></div>
+    <div class="panel"><h2>Connection<span class="pill uls">ULS</span></h2><div class="scroll"><table id="conn"></table></div></div>
+    <div class="panel"><h2>FE output values<span class="pill fe">FE-calibrated</span></h2>
+      <p class="sub">From the shell FE model (one bolt/rivet per end, heel contact), fitted to the hand formulas over 100 FE runs. The browser cannot run the FE itself.</p>
+      <div class="scroll"><table id="fe"></table></div></div>
+    <div class="panel"><h2>Leg tip deflection along the angle, SLS</h2><div id="chart"></div>
+      <div class="legend"><span><i style="background:var(--c1)"></i>Case 1 leg tip (FE-calibrated)</span><span><i style="background:var(--c3)"></i>Case 2 leg tip (FE-calibrated)</span><span><i style="background:var(--c2)"></i>Case 1 heel</span></div></div>
     <div class="panel"><h2>Capacity per configuration: Reference Graph vs Norden Non-FEM vs Cloud FEM</h2>
-      <p class="sub">Fixed results from the complete Excel (Index sheet); they do not change with the inputs above. Reference Graph = vendor chart, interpolated; Norden Non-FEM = colleague Excel method; Cloud FEM = Claude finite element analysis. Angle 70 × Lu × t, compartment depth 1216 mm, kg per compartment.</p>
+      <p class="sub">Fixed results from the Excel Index sheet; they do not change with the inputs above. Reference Graph = vendor chart, interpolated; Norden Non-FEM = colleague Excel method; Cloud FEM = Claude finite element analysis (one bolt per end). Angle 70 × Lu × t, compartment depth 1216 mm, kg per compartment.</p>
       <div class="scroll"><table id="capmax"></table></div>
       <div id="capchart" style="margin-top:14px"></div>
       <div class="legend"><span><i style="background:var(--c2);height:4px"></i>Reference Graph</span><span><i style="background:#c55a11"></i>Norden Non-FEM</span><span><i style="background:var(--c1)"></i>Cloud FEM</span></div>
-      <details class="grp" style="margin-top:10px"><summary>All 84 configurations</summary><div class="scroll"><table id="cap"></table></div></details>
-      <p class="sub">The final maximum is the largest of the three methods, as requested. Design normally uses the governing (lowest) value, because the angle must satisfy every method. None of the three includes a bin tilt limit.</p></div>
-    <div class="panel"><h2>Beam, torsion and leg results</h2><div class="scroll"><table id="beam"></table></div></div>
-    <div class="panel"><h2>Section properties</h2><div class="scroll"><table id="section"></table></div></div>
-    <div class="panel"><h2>FE vs hand, per 1 N/mm</h2><div class="scroll"><table id="ver"></table></div></div>
+      <details class="grp" style="margin-top:10px"><summary>All 84 configurations</summary><div class="scroll"><table id="cap"></table></div></details></div>
   </section>
 </main>
-<div class="foot">Hand formulas: Roark overhanging beam with full-length UDL, unsymmetric bending, St Venant torsion held at the bolt lines, EN 15512, EN 1993-1-3 / 1-5 / 1-8. FE: own shell model (QM6 + MITC4), rigid washer patches at bolts, linear static and linear buckling. Deflection and tilt limits are assumptions to confirm with the handling device supplier.</div>
+<div class="foot">Hand formulas: Roark overhanging beam, unsymmetric bending, St Venant torsion held at the bolt lines, EN 15512, EN 1993-1-3 / 1-5 / 1-8. FE: own shell model (QM6 + MITC4), one bolt per end with heel contact, linear static and linear buckling; values in purple are FE-calibrated. Deflection and tilt limits are assumptions to confirm with the handling device supplier.</div>
 <script>
-// AKL angle design calculation: same formulas as AKL_angle_design_Claude_R1.xlsx (overhang beam, UDL over a + b).
-// Units: N, mm, MPa. Positive deflection = down.
+// AKL angle support design, v3: one bolt or rivet per end, heel bearing on the upright.
+// Same formulas as the Excel workbook (sheets Inputs ... SLS_Results). Units: N, mm, MPa.
+const GRADES = {
+  'S235': [235, 360], 'S275': [275, 430], 'S355': [355, 490],
+  'S250GD': [250, 330], 'S280GD': [280, 360], 'S320GD': [320, 390], 'S350GD': [350, 420],
+  'S380GD': [380, 440], 'S390GD': [390, 460], 'S420GD': [420, 480], 'S450GD': [450, 510],
+};
+// size: d, hole d0, stress area As, washer / head diameter dw
+const BOLT_SIZES = { M6: [6, 6.6, 20.1, 12], M8: [8, 9, 36.6, 16], M10: [10, 11, 58, 20], M12: [12, 13, 84.3, 24] };
+// class: fub, alpha_v (EN 1993-1-8 Table 3.4, shear plane through the thread)
+const BOLT_CLASSES = { '4.6': [400, 0.6], '5.6': [500, 0.6], '8.8': [800, 0.6], '10.9': [1000, 0.5] };
+const BOLTS = {}; for (const s in BOLT_SIZES) for (const c in BOLT_CLASSES) BOLTS[`${s} ${c}`] = { size: s, cls: c };
+// Blind rivet from the supplied drawing: body Ø6, hole 6.2-6.5, set head Ø11.4, shear 4400 N, tension 6000 N (DIN EN ISO 14589), grip 2.8-7.0
+const RIVETS = { 'Blind rivet Ø6 steel/steel (drawing)': { d: 6.0, d0: 6.35, dw: 11.4, Fv: 4400, Ft: 6000, gripMin: 2.8, gripMax: 7.0, hole: '6.2–6.5' } };
+const FIXED = { E: 210000, nu: 0.3, gM0: 1.0, gM1: 1.0, gM2: 1.25, rho: 7850, g: 9.81, share: 0.5, rim: 3, endX: 20 };
 const DEFAULT_INPUTS = {
-  h: 60, b: 70, t: 2.5, xs: 10,
-  a: 900, ov: 300, zb1: 15, zb2: 45,
-  lbin: 400, nbin: 2, mbin: 50, share: 0.5, gacc: 9.81, gQ: 1.4,
-  fy: 350, fu: 420, E: 210000, nu: 0.3, gM0: 1.0, gM1: 1.0, gM2: 1.25,
-  bd: 8, bd0: 9, bAs: 36.6, fub: 800, endd: 20,
-  limG: 200, limC: 100, limO: 300, limTip: 3, limRel: 1.5, rim: 3,
+  h: 60, b: 70, t: 2.5, xs: 10, e: 62.5, zb: 30, a: 900, ov: 300,
+  binL: 400, binW: 600, binH: 300, nbin: 2, mbin: 50,
+  grade: 'S350GD', fuOver: 0, gULS: 1.4, gSLS: 1.0,
+  conn: 'Bolt', bolt: 'M8 8.8', rivet: 'Blind rivet Ø6 steel/steel (drawing)',
+  limG: 200, limC: 100, limO: 300, limTip: 3, limRel: 1.5,
 };
-// Shell FE results per 1 N/mm for the geometry in fe.geom (from the FE_Verification sheet).
-const DEFAULT_FE = {
-  geom: { h: 60, b: 70, t: 2.5, a: 900, ov: 300 },
-  mid_heel: 0.42951374325271824, ov_heel: -0.27716774392763444,
-  mid_twist: 0.13060236430066005, ov_twist: 0.06144378499972699,
-  max_tip: 9.573665916567126, max_rel: 9.143655159671077,
-  boltV_B: 439.5731271933895, boltAx_B: 1604.8352378895456,
-  vm_member: 234.3471740498282, sy_leg: 243.3348721057804, lam: 11.76685125034863,
-};
+// FE calibration: FE / hand = exp(c0 + ct ln t + cb ln b + ca ln a + cov ln ov + ch ln h + cz ln zb); lam is the FE buckling factor per 1 N/mm itself
+const CAL_VARS = ['t', 'b', 'a', 'ov', 'h', 'zb'];
+let CAL = {"vm":[-1.742698,-0.012785,0.460945,0.011797,0.002025,0.045293,-0.095799],"leg":[-3.770094,0.007147,0.048148,0.953188,-0.000908,-0.118923,-0.269979],"heelMid":[-0.365654,-0.009774,0.207609,-0.126297,0.008285,0.046223,-0.003612],"heelOv":[-1.586909,-0.014202,0.42779,-0.172538,-0.034837,0.207084,0.012923],"twMid":[-0.055297,0.018701,0.101759,-0.016331,-0.004762,-0.037208,-0.019966],"twOv":[0,0,0,0,0,0,0],"tip":[-0.176249,0.009395,0.085939,-0.00279,-0.003193,-0.019314,-0.019699],"rel":[-0.109673,0.02038,0.071987,0.007233,-0.004543,-0.036465,-0.01947],"V":[-0.000165,0.000001,0.000004,0.000019,0.000005,-0.000004,0.000005],"Ft":[-0.027618,-0.000146,0.008585,-0.007154,0.000066,0.009947,0.002659],"lam":[14.675632,2.983151,0.172313,-2.048687,0.089515,-0.516941,-0.023099]};
+const CAL_RANGE = {"t":[1.5,3],"b":[50,80],"a":[900,1166],"ov":[50,300],"h":[60,70],"zb":[20,40]};
 
-function calc(I, FE) {
-  const r = {};
-  // derived loads
-  // Line loads are calculated, not entered:
-  //   load on one angle P = n_bins · m_bin · g · share
-  //   case 1, under one bin:      w1 = m_bin · g · share / bearing length (local intensity, applied over a + b)
-  //   case 2, spread over angle:  w2 = P / (a + b)
-  r.Ltot = I.a + I.ov; r.Pbin = I.mbin * I.gacc * I.share; r.Pang = I.nbin * r.Pbin;
-  r.w1s = r.Pbin / I.lbin; r.w1u = I.gQ * r.w1s;
-  r.w2s = r.Pang / r.Ltot; r.w2u = I.gQ * r.w2s;
-  r.bearTot = I.nbin * I.lbin;
-  // section
+function calc(I) {
+  const F = FIXED, r = { warn: [] };
+  const [fy, fuG] = GRADES[I.grade]; const fu = I.fuOver > 0 ? I.fuOver : fuG; r.fy = fy; r.fu = fu;
+  // section (mid-line model, heel at origin)
   const S = r.sec = {};
-  S.hm = I.h - I.t / 2; S.bm = I.b - I.t / 2; S.Ar = I.t * (S.hm + S.bm); S.kgm = S.Ar * 7850 / 1e6;
+  S.hm = I.h - I.t / 2; S.bm = I.b - I.t / 2; S.Ar = I.t * (S.hm + S.bm); S.kgm = S.Ar * F.rho / 1e6;
   S.yc = I.t * S.bm ** 2 / 2 / S.Ar; S.zc = I.t * S.hm ** 2 / 2 / S.Ar;
   S.Iyy = I.t * S.hm ** 3 / 3 - S.Ar * S.zc ** 2; S.Izz = I.t * S.bm ** 3 / 3 - S.Ar * S.yc ** 2; S.Iyz = -S.Ar * S.yc * S.zc;
-  S.detI = S.Iyy * S.Izz - S.Iyz ** 2; S.Ieff = S.detI / S.Izz; S.Gm = I.E / 2 / (1 + I.nu);
-  S.Jt = (S.hm + S.bm) * I.t ** 3 / 3; S.GJ = S.Gm * S.Jt; S.Dp = I.E * I.t ** 3 / 12 / (1 - I.nu ** 2);
-  S.ecc = S.bm - I.xs / 2;
+  S.detI = S.Iyy * S.Izz - S.Iyz ** 2; S.Ieff = S.detI / S.Izz; S.Gm = F.E / 2 / (1 + F.nu);
+  S.Jt = (S.hm + S.bm) * I.t ** 3 / 3; S.GJ = S.Gm * S.Jt; S.Dp = F.E * I.t ** 3 / 12 / (1 - F.nu ** 2);
   S.cTop = -(S.Izz * (S.hm - S.zc) - S.Iyz * (0 - S.yc)) / S.detI;
   S.cHeel = -(S.Izz * (0 - S.zc) - S.Iyz * (0 - S.yc)) / S.detI;
   S.cTip = -(S.Izz * (0 - S.zc) - S.Iyz * (S.bm - S.yc)) / S.detI;
   S.cMax = Math.max(Math.abs(S.cTop), Math.abs(S.cHeel), Math.abs(S.cTip));
-  S.epsi = Math.sqrt(235 / I.fy); S.cOt = (I.h - 2 * I.t) / I.t; S.ctLim = 14 * S.epsi;
-  S.cls = S.cOt > S.ctLim ? 'Class 4' : 'Class 3 or better';
-  // beam, per 1 N/mm
-  const a = I.a, ov = I.ov, E = I.E, B = r.beam = {};
-  B.RA = (a ** 2 - ov ** 2) / (2 * a); B.RB = (a + ov) ** 2 / (2 * a); B.xM = Math.max(0, B.RA);
+  S.epsi = Math.sqrt(235 / fy); S.cOt = (I.h - 2 * I.t) / I.t; S.ctLim = 14 * S.epsi;
+  // geometry derived from the inputs
+  const G = r.geo = {};
+  G.ecc = I.e + I.t / 2;                 // torque lever arm: heel mid-line to load
+  G.arm = I.e;                           // leg cantilever arm: inner face of vertical leg to load
+  G.tipDist = I.b - I.t - I.e;           // load to free edge of horizontal leg
+  G.stripIn = I.e - I.xs / 2; G.stripOut = I.e + I.xs / 2;
+  G.lb = I.binL;                         // bin bearing length along the angle
+  G.Ltot = I.a + I.ov; G.bearTot = I.nbin * G.lb;
+  G.zc = I.zb - I.t / 2;                 // lever arm bolt to heel contact (single bolt, heel bears on upright)
+  G.e1 = I.h - I.zb;                     // bolt to top edge of vertical leg (edge distance in load direction)
+  G.LtotAngle = I.a + I.ov + F.endX;     // physical angle length
+  // loads (characteristic, then ULS / SLS)
+  const L = r.load = {};
+  L.Pbin = I.mbin * F.g * F.share; L.Pang = I.nbin * L.Pbin;
+  L.wsw = S.Ar * F.rho * 1e-9 * F.g;     // angle self-weight, N/mm
+  L.wb1 = L.Pbin / G.lb; L.wb2 = L.Pang / G.Ltot;
+  // beam per 1 N/mm (vertical) and per 1 N·mm/mm (torque)
+  const a = I.a, ov = I.ov, E = F.E, B = r.beam = {};
+  B.RA = (a ** 2 - ov ** 2) / (2 * a); B.RB = (a + ov) ** 2 / (2 * a);
   B.Msp = B.RA > 0 ? B.RA ** 2 / 2 : 0; B.MB = -(ov ** 2) / 2; B.Mmx = Math.max(Math.abs(B.Msp), Math.abs(B.MB));
   B.dMid = a ** 2 * (5 * a ** 2 - 12 * ov ** 2) / (384 * E * S.Ieff);
   B.dOv = ov * (4 * a * ov ** 2 + 3 * ov ** 3 - a ** 3) / (24 * E * S.Ieff);
-  B.dLat = -B.dMid * S.Iyz / S.Izz;
-  B.thMid = S.ecc * a ** 2 / (8 * S.GJ); B.thOv = S.ecc * ov ** 2 / (2 * S.GJ);
-  B.TA = S.ecc * a / 2; B.TB = S.ecc * (a / 2 + ov); B.Tmem = S.ecc * Math.max(a / 2, ov); B.tau = B.Tmem * I.t / S.Jt;
-  B.sB = S.cMax * B.Mmx; B.sCom = Math.max(0, -S.cTop * B.Msp); B.vmH = Math.sqrt(B.sB ** 2 + 3 * B.tau ** 2);
-  B.sLeg = 6 * S.ecc / I.t ** 2; B.dLeg = S.ecc ** 3 / (3 * S.Dp);
-  B.tMid = B.dMid + B.thMid * S.bm + B.dLeg; B.tOv = B.dOv + B.thOv * S.bm + B.dLeg;
-  B.rMid = B.thMid * S.bm + B.dLeg; B.rOv = B.thOv * S.bm + B.dLeg;
-  // profile: 36 points over the span, 12 over the overhang (as the Profile sheet)
+  B.thMid = a ** 2 / (8 * S.GJ); B.thOv = ov ** 2 / (2 * S.GJ);
+  B.TA = a / 2; B.TB = a / 2 + ov; B.Tmem = Math.max(a / 2, ov);
   const nS = 36, nO = 12, P = r.profile = [];
   for (let i = 0; i <= nS + nO; i++) {
-    const x = i <= nS ? a * i / nS : a + ov * (i - nS) / nO;
-    let beam, tw;
-    if (x <= a) {
-      beam = x / (24 * E * S.Ieff * a) * (a ** 4 - 2 * a ** 2 * x ** 2 + a * x ** 3 - 2 * ov ** 2 * a ** 2 + 2 * ov ** 2 * x ** 2);
-      tw = S.ecc * x * (a - x) / (2 * S.GJ);
-    } else {
-      const u = x - a;
-      beam = u / (24 * E * S.Ieff) * (4 * ov ** 2 * a - a ** 3 + 6 * ov ** 2 * u - 4 * ov * u ** 2 + u ** 3);
-      tw = S.ecc * (ov * u - u ** 2 / 2) / S.GJ;
-    }
-    P.push({ x, span: x <= a, beam, tw, tip: beam + tw * S.bm + B.dLeg });
+    const x = i <= nS ? a * i / nS : a + ov * (i - nS) / nO; let beam, tw;
+    if (x <= a) { beam = x / (24 * E * S.Ieff * a) * (a ** 4 - 2 * a ** 2 * x ** 2 + a * x ** 3 - 2 * ov ** 2 * a ** 2 + 2 * ov ** 2 * x ** 2); tw = x * (a - x) / (2 * S.GJ); }
+    else { const u = x - a; beam = u / (24 * E * S.Ieff) * (4 * ov ** 2 * a - a ** 3 + 6 * ov ** 2 * u - 4 * ov * u ** 2 + u ** 3); tw = (ov * u - u ** 2 / 2) / S.GJ; }
+    P.push({ x, span: x <= a, beam, tw });
   }
-  r.pTipMax = Math.max(...P.map(p => p.tip));
-  r.pRelMax = Math.max(...P.map(p => p.tw)) * S.bm + B.dLeg;
-  r.pHeelSpanMax = Math.max(...P.slice(0, nS + 1).map(p => p.beam));
-  // FE comparison and factors
-  const g = FE.geom;
-  r.feValid = I.h === g.h && I.b === g.b && I.t === g.t && I.a === g.a && I.ov === g.ov;
-  r.ver = [
-    ['Heel deflection at midspan (mm)', FE.mid_heel, B.dMid],
-    ['Heel deflection at overhang tip (mm)', FE.ov_heel, B.dOv],
-    ['Twist at midspan (rad)', FE.mid_twist, B.thMid],
-    ['Twist at overhang tip (rad)', FE.ov_twist, B.thOv],
-    ['Max leg tip deflection (mm)', FE.max_tip, r.pTipMax],
-    ['Max tip relative to heel (mm)', FE.max_rel, r.pRelMax],
-    ['Bolt vertical force at B, per bolt (N)', FE.boltV_B, B.RB / 2],
-    ['Bolt axial force at B from torque (N)', FE.boltAx_B, B.TB / (I.zb2 - I.zb1)],
-    ['von Mises, member (MPa)', FE.vm_member, B.vmH],
-    ['Leg transverse stress (MPa)', FE.sy_leg, B.sLeg],
-  ];
-  r.kVm = Math.max(1, FE.vm_member / B.vmH); r.kLeg = Math.max(1, FE.sy_leg / B.sLeg);
-  r.kDef = Math.max(1, FE.max_tip / r.pTipMax); r.feLam = FE.lam;
-  // check intermediates (Checks_Aux)
+  // FE calibration factors at these inputs
+  const lnv = { t: Math.log(I.t), b: Math.log(I.b), a: Math.log(I.a), ov: Math.log(I.ov), h: Math.log(I.h), zb: Math.log(I.zb) };
+  const cal = q => Math.exp(CAL[q][0] + CAL_VARS.reduce((s, v, k) => s + CAL[q][k + 1] * lnv[v], 0));
+  const K = r.k = {}; for (const q in CAL) K[q] = cal(q);
+  r.inRange = CAL_VARS.every(v => I[v] >= CAL_RANGE[v][0] - 1e-9 && I[v] <= CAL_RANGE[v][1] + 1e-9);
+  // connection
+  const C = r.conn = { type: I.conn };
+  if (I.conn === 'Bolt') {
+    const bo = BOLTS[I.bolt], [d, d0, As, dw] = BOLT_SIZES[bo.size], [fub, av] = BOLT_CLASSES[bo.cls];
+    Object.assign(C, { name: I.bolt, d, d0, As, dw, fub });
+    C.FvRd = av * fub * As / F.gM2; C.FtRd = 0.9 * fub * As / F.gM2;
+    C.ab = Math.min(1, G.e1 / (3 * d)); C.kt = I.t < 1.25 ? (0.8 * I.t + 1.5) / 2.5 : 1.0;
+    C.FbRd = 2.5 * C.ab * C.kt * fu * d * I.t / F.gM2;            // EN 1993-1-3 Table 8.4
+  } else {
+    const rv = RIVETS[I.rivet];
+    Object.assign(C, { name: I.rivet, d: rv.d, d0: rv.d0, dw: rv.dw, gripMin: rv.gripMin, gripMax: rv.gripMax, hole: rv.hole });
+    C.FvRd = rv.Fv / F.gM2; C.FtRd = rv.Ft / F.gM2;               // test loads from the drawing / γM2
+    C.alpha = Math.min(3.6 * Math.sqrt(I.t / rv.d), 2.1);
+    C.FbRd = C.alpha * fu * rv.d * I.t / F.gM2;                   // EN 1993-1-3 Table 8.1
+  }
+  C.FpRd = C.dw * I.t * fu / F.gM2;                               // pull-over of the angle under the head / washer
+  // local buckling reduction of the vertical leg outstand
   const X = r.aux = {};
   X.psi = Math.max(-3, Math.min(1, S.cHeel / S.cTop)); X.ks = 0.57 - 0.21 * X.psi + 0.07 * X.psi ** 2;
   X.lp = S.cOt / (28.4 * S.epsi * Math.sqrt(X.ks)); X.rho = X.lp > 0.748 ? Math.min(1, (X.lp - 0.188) / X.lp ** 2) : 1;
-  X.FvRd = 0.6 * I.fub * I.bAs / I.gM2; X.ad = Math.min((I.h - I.zb2) / (3 * I.bd0), I.fub / I.fu, 1);
-  X.k1 = Math.min(2.8 * I.endd / I.bd0 - 1.7, 2.5); X.FbRd = X.k1 * X.ad * I.fu * I.bd * I.t / I.gM2; X.FtRd = 0.9 * I.fub * I.bAs / I.gM2;
-  const cases = [{ name: 'Under one bin', wu: r.w1u, ws: r.w1s }, { name: 'Spread over a + b', wu: r.w2u, ws: r.w2s }];
+  // load cases
+  const cases = [{ name: 'Case 1: under one bin', wb: L.wb1 }, { name: 'Case 2: bins spread over a + b', wb: L.wb2 }];
   for (const c of cases) {
-    c.vm = r.kVm * B.vmH * c.wu; c.aUlt = I.fy / c.vm; c.aCr = r.feLam / c.wu; c.lam = Math.sqrt(c.aUlt / c.aCr);
-    c.phi = 0.5 * (1 + 0.76 * (c.lam - 0.2) + c.lam ** 2); c.chi = Math.min(1, 1 / (c.phi + Math.sqrt(c.phi ** 2 - c.lam ** 2)));
-    c.boltV = B.RB / 2 * c.wu; c.boltT = B.TB / (I.zb2 - I.zb1) * c.wu;
-    c.boltInt = c.boltV / Math.min(X.FvRd, X.FbRd) + c.boltT / (1.4 * X.FtRd);
+    c.wk = c.wb + L.wsw; c.mtk = c.wb * G.ecc;
+    const U = c.U = { wb: I.gULS * c.wb, w: I.gULS * c.wk }, Sx = c.S = { wb: I.gSLS * c.wb, w: I.gSLS * c.wk };
+    for (const Q of [U, Sx]) {
+      Q.mt = Q.wb * G.ecc;
+      Q.sB = S.cMax * B.Mmx * Q.w; Q.sCom = Math.max(0, -S.cTop * B.Msp * Q.w); Q.tau = Q.mt * B.Tmem * I.t / S.Jt;
+      Q.vmH = Math.sqrt(Q.sB ** 2 + 3 * Q.tau ** 2); Q.sLegH = 6 * Q.wb * G.arm / I.t ** 2; Q.dLeg = Q.wb * G.arm ** 3 / (3 * S.Dp);
+      Q.vm = K.vm * Q.vmH; Q.sLeg = K.leg * Q.sLegH;
+      Q.heelMid = K.heelMid * B.dMid * Q.w; Q.heelOv = K.heelOv * B.dOv * Q.w;
+      Q.twMid = K.twMid * B.thMid * Q.mt; Q.twOv = K.twOv * B.thOv * Q.mt;
+      Q.tipH = Math.max(...P.map(p => p.beam * Q.w + p.tw * Q.mt * S.bm)) + Q.dLeg;
+      Q.relH = Math.max(...P.map(p => p.tw)) * Q.mt * S.bm + Q.dLeg;
+      Q.heelSpanH = Math.max(...P.slice(0, nS + 1).map(p => p.beam)) * Q.w;
+      Q.tip = K.tip * Q.tipH; Q.rel = K.rel * Q.relH; Q.heelSpan = K.heelMid * Q.heelSpanH;
+      Q.VA = K.V * B.RA * Q.w; Q.VB = K.V * B.RB * Q.w;
+      Q.TtA = K.Ft * B.TA * Q.mt / G.zc; Q.TtB = K.Ft * B.TB * Q.mt / G.zc;
+      Q.aUlt = fy / Q.vm; Q.aCr = K.lam / Q.wb; Q.lam = Math.sqrt(Q.aUlt / Q.aCr);
+      Q.phi = 0.5 * (1 + 0.76 * (Q.lam - 0.2) + Q.lam ** 2); Q.chi = Math.min(1, 1 / (Q.phi + Math.sqrt(Q.phi ** 2 - Q.lam ** 2)));
+      Q.inter = I.conn === 'Bolt' ? Q.VB / Math.min(C.FvRd, C.FbRd) + Q.TtB / (1.4 * C.FtRd)
+                                  : Q.VB / Math.min(C.FvRd, C.FbRd) + Q.TtB / Math.min(C.FtRd, C.FpRd);
+    }
   }
   r.cases = cases;
-  const defs = [
-    ['Horizontal leg transverse bending', c => r.kLeg * B.sLeg * c.wu, () => I.fy / I.gM0, 'MPa, hand clamped value × k_leg'],
-    ['Cross-section von Mises (bending + torsion)', c => c.vm, () => I.fy / I.gM0, 'MPa, √(σ²+3τ²) × k_vm'],
-    ['Local buckling, vertical leg outstand', c => B.sCom * c.wu, () => X.rho * I.fy / I.gM1, 'MPa, σcom ≤ ρ fy'],
-    ['Flexural-torsional buckling', () => 1, c => c.chi * c.aUlt / I.gM1, 'reduced stress method, FE α_cr, curve d'],
-    ['Bearing of bin rim on leg', c => c.wu / I.rim, () => I.fy / I.gM0, 'MPa'],
-    ['Bolts at B: shear + tension', c => c.boltInt, () => 1, 'interaction ≤ 1'],
-    ['SLS span heel deflection', c => Math.max(0, r.pHeelSpanMax) * c.ws, () => a / I.limG, 'mm, ≤ a/limG'],
-    ['SLS overhang tip heel deflection', c => Math.abs(B.dOv) * c.ws, () => ov / I.limC, 'mm, ≤ b/limC'],
-    ['SLS leg tip deflection, anywhere', c => r.kDef * r.pTipMax * c.ws, () => Math.min(a / I.limO, I.limTip), 'mm × k_def'],
-    ['SLS tip relative to heel (bin tilt)', c => r.kDef * r.pRelMax * c.ws, () => I.limRel, 'mm × k_def'],
+  const uls = [
+    ['Horizontal leg transverse bending', c => c.U.sLeg, () => fy / F.gM0, 'MPa', 'FE-calibrated: 6·w·e/t² × k_leg'],
+    ['Cross-section von Mises (bending + torsion)', c => c.U.vm, () => fy / F.gM0, 'MPa', 'FE-calibrated: √(σ² + 3τ²) × k_vm'],
+    ['Local buckling, vertical leg outstand', c => c.U.sCom, () => X.rho * fy / F.gM1, 'MPa', 'σcom ≤ ρ·fy (EN 1993-1-5 Table 4.2)'],
+    ['Flexural-torsional buckling', () => 1, c => c.U.chi * c.U.aUlt / F.gM1, '-', 'FE-calibrated α_cr, EN 1993-1-5 §10, curve d'],
+    ['Bearing of bin rim on leg', c => c.U.wb / F.rim, () => fy / F.gM0, 'MPa', 'w / rim contact width'],
+    [`${I.conn} shear at B`, c => c.U.VB, () => C.FvRd, 'N', I.conn === 'Bolt' ? 'αv·fub·As/γM2' : 'drawing shear load / γM2'],
+    [`${I.conn} bearing on angle at B`, c => c.U.VB, () => C.FbRd, 'N', I.conn === 'Bolt' ? 'EN 1993-1-3 Table 8.4' : 'EN 1993-1-3 Table 8.1'],
+    [`${I.conn} tension at B (torque)`, c => c.U.TtB, () => C.FtRd, 'N', 'T_B / (zb − t/2), heel bears on upright'],
+    ['Pull-over of angle under head / washer', c => c.U.TtB, () => C.FpRd, 'N', 'dw·t·fu/γM2'],
+    [`${I.conn} shear + tension interaction`, c => c.U.inter, () => 1, '-', I.conn === 'Bolt' ? 'Fv/Fv,Rd + Ft/(1.4 Ft,Rd)' : 'Fv/Fv,Rd + Ft/Ft,Rd'],
   ];
-  r.checks = defs.map(([label, ed, rd, note]) => ({
-    label, note, res: cases.map(c => { const Ed = ed(c), Rd = rd(c), u = Ed / Rd; return { Ed, Rd, u, pass: u <= 1 }; }),
-  }));
-  r.summary = cases.map((c, k) => {
-    let best = 0; r.checks.forEach((ch, i) => { if (ch.res[k].u > r.checks[best].res[k].u) best = i; });
-    const u = r.checks[best].res[k].u; return { u, pass: u <= 1, governing: r.checks[best].label };
-  });
+  const sls = [
+    ['Span heel deflection', c => Math.max(0, c.S.heelSpan), () => a / I.limG, 'mm', '≤ a / limG'],
+    ['Overhang tip heel deflection', c => Math.abs(c.S.heelOv), () => ov / I.limC, 'mm', '≤ b / limC'],
+    ['Leg tip deflection, anywhere', c => c.S.tip, () => Math.min(a / I.limO, I.limTip), 'mm', 'FE-calibrated, ≤ min(a/limO, limTip)'],
+    ['Tip relative to heel (bin tilt)', c => c.S.rel, () => I.limRel, 'mm', 'FE-calibrated, ≤ limRel'],
+  ];
+  const mk = defs => defs.map(([label, ed, rd, unit, note]) => ({ label, unit, note,
+    res: cases.map(c => { const Ed = ed(c), Rd = rd(c), u = Ed / Rd; return { Ed, Rd, u, pass: u <= 1 }; }) }));
+  r.uls = mk(uls); r.sls = mk(sls);
+  const summ = list => cases.map((c, k) => { let best = 0; list.forEach((ch, i) => { if (ch.res[k].u > list[best].res[k].u) best = i; });
+    return { u: list[best].res[k].u, pass: list[best].res[k].u <= 1, governing: list[best].label }; });
+  r.ulsSum = summ(r.uls); r.slsSum = summ(r.sls);
+  // input validation
+  const W = r.warn;
+  if (G.stripOut > I.b - I.t + 1e-9) W.push(`Bearing strip (e + xs/2 = ${G.stripOut.toFixed(1)} mm) extends past the horizontal leg (b − t = ${(I.b - I.t).toFixed(1)} mm).`);
+  if (G.stripIn < 0) W.push('Bearing strip reaches inside the vertical leg: increase e.');
+  if (I.zb - C.d0 / 2 < I.t || I.zb + C.d0 / 2 > I.h) W.push(`${I.conn} hole (Ø${C.d0}) does not fit on the vertical leg between the horizontal leg and the top edge.`);
+  if (G.bearTot > G.Ltot) W.push(`${I.nbin} bins × ${I.binL} mm = ${G.bearTot} mm do not fit on a + b = ${G.Ltot} mm.`);
+  if (I.conn === 'Rivet' && I.t > C.gripMax) W.push(`Angle thickness exceeds the rivet grip range (${C.gripMin}–${C.gripMax} mm incl. upright).`);
+  if (!r.inRange) W.push('Inputs are outside the FE calibration range: FE-calibrated values are extrapolated.');
   return r;
 }
-if (typeof module !== 'undefined') module.exports = { calc, DEFAULT_INPUTS, DEFAULT_FE };
+if (typeof module !== 'undefined') module.exports = { calc, DEFAULT_INPUTS, GRADES, BOLTS, RIVETS, FIXED, setCal: (c, rg) => { CAL = c; Object.assign(CAL_RANGE, rg); } };
 
-const FE_X = [-20,-15,-10,-5,0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,125,130,135,140,145,150,155,160,165,170,175,180,185,190,195,200,205,210,215,220,225,230,235,240,245,250,255,260,265,270,275,280,285,290,295,300,305,310,315,320,325,330,335,340,345,350,355,360,365,370,375,380,385,390,395,400,405,410,415,420,425,430,435,440,445,450,455,460,465,470,475,480,485,490,495,500,505,510,515,520,525,530,535,540,545,550,555,560,565,570,575,580,585,590,595,600,605,610,615,620,625,630,635,640,645,650,655,660,665,670,675,680,685,690,695,700,705,710,715,720,725,730,735,740,745,750,755,760,765,770,775,780,785,790,795,800,805,810,815,820,825,830,835,840,845,850,855,860,865,870,875,880,885,890,895,900,905,910,915,920,925,930,935,940,945,950,955,960,965,970,975,980,985,990,995,1000,1005,1010,1015,1020,1025,1030,1035,1040,1045,1050,1055,1060,1065,1070,1075,1080,1085,1090,1095,1100,1105,1110,1115,1120,1125,1130,1135,1140,1145,1150,1155,1160,1165,1170,1175,1180,1185,1190,1195,1200], FE_TIP = [1.93007,2.00719,2.08559,2.16605,2.24913,2.33511,2.42421,2.51657,2.6123,2.71143,2.81398,2.91989,3.02905,3.14132,3.2565,3.3744,3.49476,3.61734,3.74187,3.86807,3.99569,4.12444,4.25407,4.38433,4.51497,4.64577,4.77651,4.90698,5.03701,5.16642,5.29504,5.42274,5.54938,5.67484,5.799,5.92178,6.04307,6.1628,6.28089,6.39729,6.51193,6.62475,6.73572,6.84479,6.95193,7.0571,7.16027,7.26143,7.36053,7.45758,7.55253,7.6454,7.73615,7.82477,7.91126,7.9956,8.07779,8.15782,8.23569,8.31137,8.38488,8.45621,8.52535,8.5923,8.65705,8.71961,8.77997,8.83812,8.89407,8.94782,8.99936,9.04869,9.09581,9.14071,9.18341,9.22389,9.26216,9.29822,9.33206,9.36368,9.39309,9.42028,9.44526,9.46802,9.48856,9.50688,9.52299,9.53688,9.54855,9.55801,9.56525,9.57027,9.57308,9.57367,9.57204,9.5682,9.56214,9.55387,9.54339,9.53069,9.51578,9.49866,9.47932,9.45778,9.43403,9.40806,9.37989,9.34952,9.31694,9.28215,9.24516,9.20597,9.16458,9.12099,9.0752,9.02722,8.97704,8.92467,8.87012,8.81337,8.75445,8.69334,8.63005,8.56458,8.49695,8.42715,8.35518,8.28105,8.20478,8.12635,8.04579,7.96309,7.87827,7.79134,7.7023,7.61117,7.51796,7.42269,7.32538,7.22604,7.12469,7.02137,6.91609,6.80889,6.69981,6.58889,6.47617,6.3617,6.24554,6.12776,6.00842,5.88761,5.76541,5.64194,5.51729,5.3916,5.26501,5.13766,5.00972,4.88139,4.75285,4.62434,4.4961,4.36838,4.24146,4.11564,3.99125,3.86862,3.74809,3.63004,3.51485,3.40289,3.29456,3.19025,3.09031,2.99513,2.90504,2.82036,2.74138,2.66833,2.60145,2.5409,2.48682,2.43931,2.39841,2.36415,2.33651,2.31542,2.30079,2.29247,2.2903,2.29405,2.30347,2.31828,2.33815,2.36274,2.3917,2.42464,2.46119,2.50095,2.54355,2.58862,2.63578,2.6847,2.73504,2.78649,2.83875,2.89154,2.94462,2.99774,3.0507,3.10329,3.15533,3.20666,3.25714,3.30663,3.35501,3.40218,3.44805,3.49253,3.53555,3.57705,3.61697,3.65527,3.69192,3.72688,3.76013,3.79164,3.82142,3.84946,3.87575,3.90031,3.92315,3.94429,3.96376,3.9816,3.99785,4.01258,4.02585,4.03774,4.04838,4.05788,4.06642,4.07422,4.08158];
-const GROUPS = [
-  ['Section', [['h','Vertical leg height (outside)','mm',1],['b','Horizontal leg width (outside)','mm',1],['t','Thickness','mm',1],['xs','Bearing strip width at leg tip','mm']]],
-  ['Beam condition', [['a','Span a between bolt lines','mm',1],['ov','Overhang b beyond bolt line B','mm',1],['zb1','Lower bolt height above underside','mm'],['zb2','Upper bolt height above underside','mm']]],
-  ['Loads', [['nbin','Bins along one angle','-',1],['mbin','Max gross bin mass','kg',1],['lbin','Bin bearing length along angle','mm'],['share','Share of a bin on one angle','-'],['gacc','Gravity','m/s²'],['gQ','ULS load factor','-']]],
-  ['Material', [['fy','Yield strength','MPa'],['fu','Ultimate strength','MPa'],['E','Elastic modulus','MPa'],['nu','Poisson ratio','-'],['gM0','γM0','-'],['gM1','γM1','-'],['gM2','γM2','-']]],
-  ['Bolts', [['bd','Bolt diameter','mm'],['bd0','Hole diameter','mm'],['bAs','Tensile stress area','mm²'],['fub','Bolt ultimate strength','MPa'],['endd','End distance e2','mm']]],
-  ['Limits', [['limG','Span deflection limit a/…','-'],['limC','Overhang tip limit b/…','-'],['limO','Operating leg tip limit a/…','-',1],['limTip','Absolute leg tip limit','mm',1],['limRel','Tip relative to heel (bin tilt)','mm',1],['rim','Bin rim contact width','mm']]],
-];
-const FE_FIELDS = [['geom.h','FE run: h','mm'],['geom.b','FE run: b','mm'],['geom.t','FE run: t','mm'],['geom.a','FE run: a','mm'],['geom.ov','FE run: overhang','mm'],
-  ['mid_heel','Heel defl. midspan','mm'],['ov_heel','Heel defl. overhang tip','mm'],['mid_twist','Twist midspan','rad'],['ov_twist','Twist overhang tip','rad'],
-  ['max_tip','Max leg tip defl.','mm'],['max_rel','Max tip rel. to heel','mm'],['boltV_B','Bolt vertical force at B','N'],['boltAx_B','Bolt axial force at B','N'],
-  ['vm_member','von Mises, member','MPa'],['sy_leg','Leg transverse stress','MPa'],['lam','Buckling factor (mode 1)','-']];
-const store = { get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}}, set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}} };
-let I = Object.assign({}, DEFAULT_INPUTS, store.get('akl_inputs') || {});
-let FE = JSON.parse(JSON.stringify(DEFAULT_FE)); { const s = store.get('akl_fe'); if (s) { Object.assign(FE, s); FE.geom = Object.assign({}, DEFAULT_FE.geom, s.geom || {}); } }
-const getP = (o, p) => p.split('.').reduce((x, k) => x[k], o);
-const setP = (o, p, v) => { const ks = p.split('.'); const l = ks.pop(); ks.reduce((x, k) => x[k], o)[l] = v; };
-function field(id, label, unit, val, key) {
-  return `<div class="field"><label for="${id}">${label}</label><input id="${id}" type="number" step="any" value="${val}"${key ? ' class="key"' : ''}><span class="u">${unit}</span></div>`;
-}
-function buildInputs() {
-  document.getElementById('inputs').innerHTML = GROUPS.map(([g, fs], i) =>
-    `<details class="grp"${i < 3 ? ' open' : ''}><summary>${g}</summary>${fs.map(([k, l, u, key]) => field('in_' + k, l, u, I[k], key)).join('')}</details>`).join('');
-  document.getElementById('feinputs').innerHTML = FE_FIELDS.map(([k, l, u]) => field('fe_' + k, l, u, getP(FE, k))).join('');
-  document.querySelectorAll('#inputs input').forEach(el => el.addEventListener('input', () => {
-    const v = parseFloat(el.value); if (isFinite(v)) { I[el.id.slice(3)] = v; store.set('akl_inputs', I); update(); } }));
-  document.querySelectorAll('#feinputs input').forEach(el => el.addEventListener('input', () => {
-    const v = parseFloat(el.value); if (isFinite(v)) { setP(FE, el.id.slice(3), v); store.set('akl_fe', FE); update(); } }));
-}
-const f = (v, d = 2) => (v === undefined || v === null || !isFinite(v)) ? '–' : Math.abs(v) >= 1e5 ? v.toExponential(3) : v.toFixed(d);
-const tag = p => `<span class="tag ${p ? 'pass' : 'fail'}">${p ? 'PASS' : 'FAIL'}</span>`;
-let R;
-function update() {
-  R = calc(I, FE);
-  const g = FE.geom;
-  document.getElementById('febanner').innerHTML = R.feValid
-    ? `<div class="banner ok">Inputs match the FE run (h ${g.h}, b ${g.b}, t ${g.t}, a ${g.a}, overhang ${g.ov}), so the FE correction factors and buckling factor are valid.</div>`
-    : `<div class="banner warn">Geometry differs from the FE run (h ${g.h}, b ${g.b}, t ${g.t}, a ${g.a}, overhang ${g.ov}). The FE correction factors and buckling factor are approximate: rerun FE for this geometry and enter the results under “FE results”.</div>`;
-  const cs = R.cases;
-  document.getElementById('loads').innerHTML = `<tr><th>Step</th><th>Formula</th><th>Value</th></tr>
-    <tr><td>Load of one bin on one angle</td><td>m · g · share = ${f(I.mbin, 1)} × ${f(I.gacc)} × ${f(I.share)}</td><td>${f(R.Pbin, 1)} N</td></tr>
-    <tr><td>Total load on one angle</td><td>n × ${f(R.Pbin, 1)} = ${I.nbin} × ${f(R.Pbin, 1)}</td><td>${f(R.Pang, 1)} N</td></tr>
-    <tr><td>Loaded length of the angle</td><td>a + b = ${I.a} + ${I.ov}</td><td>${f(R.Ltot, 0)} mm</td></tr>
-    <tr class="band"><td colspan="3">Case 1: ${cs[0].name} (local intensity, applied over a + b, conservative)</td></tr>
-    <tr><td>Line load, SLS</td><td>${f(R.Pbin, 1)} / bearing length ${I.lbin} mm</td><td>${f(R.w1s, 3)} N/mm</td></tr>
-    <tr><td>Line load, ULS</td><td>× γQ ${f(I.gQ)}</td><td>${f(R.w1u, 3)} N/mm</td></tr>
-    <tr class="band"><td colspan="3">Case 2: ${cs[1].name} (average over the angle)</td></tr>
-    <tr><td>Line load, SLS</td><td>${f(R.Pang, 1)} / (a + b) ${f(R.Ltot, 0)} mm</td><td>${f(R.w2s, 3)} N/mm</td></tr>
-    <tr><td>Line load, ULS</td><td>× γQ ${f(I.gQ)}</td><td>${f(R.w2u, 3)} N/mm</td></tr>`;
-  document.getElementById('loadnote').innerHTML = R.bearTot > R.Ltot
-    ? `<b style="color:var(--fail)">${I.nbin} bins × ${I.lbin} mm = ${f(R.bearTot, 0)} mm do not fit on a + b = ${f(R.Ltot, 0)} mm. Check the number of bins or the lengths.</b>`
-    : `Bins cover ${f(R.bearTot, 0)} of ${f(R.Ltot, 0)} mm. Case 1 is the bin's own line load spread over the whole angle, so it is the stricter case unless the bins sit end to end.`;
-  document.getElementById('charttitle').textContent = `Leg tip deflection along the angle, ${cs[0].name.toLowerCase()} (SLS, ${f(R.w1s, 3)} N/mm)`;
-  document.getElementById('tiles').innerHTML = cs.map((c, k) => {
-    const s = R.summary[k];
-    return `<div class="tile ${s.pass ? 'pass' : 'fail'}"><div class="k">${c.name}: ${f(c.ws, 3)} N/mm SLS, ${f(c.wu, 3)} N/mm ULS</div><div class="v">${s.pass ? 'PASS' : 'FAIL'} · ${f(s.u)}</div><div class="d">Governing: ${s.governing}</div></div>`;
-  }).join('') + `<div class="tile ${R.feValid ? 'pass' : 'warn'}"><div class="k">FE factors</div><div class="v">${R.feValid ? 'Valid' : 'Rerun FE'}</div><div class="d">k_vm ${f(R.kVm)}, k_leg ${f(R.kLeg)}, k_def ${f(R.kDef)}, λ_FE ${f(R.feLam)}</div></div>`;
-  document.getElementById('checks').innerHTML =
-    `<tr><th>Check</th><th colspan="4">${cs[0].name}</th><th colspan="4">${cs[1].name}</th><th style="text-align:left">Notes</th></tr>
-     <tr><th></th><th>Ed</th><th>Rd</th><th>Util</th><th>Result</th><th>Ed</th><th>Rd</th><th>Util</th><th>Result</th><th></th></tr>` +
-    R.checks.map(ch => `<tr><td>${ch.label}</td>${ch.res.map(x => `<td>${f(x.Ed)}</td><td>${f(x.Rd)}</td><td>${f(x.u)}</td><td>${tag(x.pass)}</td>`).join('')}<td class="note">${ch.note}</td></tr>`).join('') +
-    `<tr class="band"><td>Maximum utilisation</td>${R.summary.map(s => `<td></td><td></td><td>${f(s.u)}</td><td>${tag(s.pass)}</td>`).join('')}<td></td></tr>`;
-  const B = R.beam, S = R.sec;
-  const rows = [['Reactions and moments'], ['Reaction at A (N)', B.RA], ['Reaction at B (N)', B.RB], ['Max sagging moment in span (N·mm)', B.Msp], ['Hogging moment at B (N·mm)', B.MB],
-    ['Beam deflection (heel line)'], ['Deflection at midspan (mm)', B.dMid], ['Deflection at overhang tip C (mm)', B.dOv], ['Lateral deflection at midspan (mm)', B.dLat],
-    ['Torsion (twist held at A and B)'], ['Twist at midspan (rad)', B.thMid], ['Twist at overhang tip (rad)', B.thOv], ['Torque into bolts at A (N·mm)', B.TA], ['Torque into bolts at B (N·mm)', B.TB], ['Torsional shear stress (MPa)', B.tau],
-    ['Stresses'], ['Max bending stress (MPa)', B.sB], ['Compression at top of vertical leg (MPa)', B.sCom], ['von Mises, hand (MPa)', B.vmH], ['Leg transverse stress at heel (MPa)', B.sLeg], ['Leg local tip deflection (mm)', B.dLeg],
-    ['Leg tip deflection = beam + twist × bm + local'], ['Leg tip at midspan (mm)', B.tMid], ['Leg tip at overhang end (mm)', B.tOv], ['Tip relative to heel, midspan (mm)', B.rMid], ['Tip relative to heel, overhang end (mm)', B.rOv]];
-  document.getElementById('beam').innerHTML = `<tr><th>Quantity</th><th>Per 1 N/mm</th><th>${R.cases[0].name}, SLS</th><th>${R.cases[1].name}, SLS</th></tr>` +
-    rows.map(r => r.length === 1 ? `<tr class="band"><td colspan="4">${r[0]}</td></tr>` : `<tr><td>${r[0]}</td><td>${f(r[1], 4)}</td><td>${f(r[1] * R.w1s, 3)}</td><td>${f(r[1] * R.w2s, 3)}</td></tr>`).join('');
-  const sr = [['Mid-line heights hm / bm (mm)', `${f(S.hm)} / ${f(S.bm)}`], ['Area (mm²)', f(S.Ar)], ['Mass (kg/m)', f(S.kgm, 3)], ['Centroid y / z (mm)', `${f(S.yc)} / ${f(S.zc)}`],
-    ['Iyy / Izz (mm⁴)', `${f(S.Iyy, 0)} / ${f(S.Izz, 0)}`], ['Iyz (mm⁴)', f(S.Iyz, 0)], ['Effective I, vertical (mm⁴)', f(S.Ieff, 0)], ['Torsion constant J (mm⁴)', f(S.Jt, 1)],
-    ['Lever arm e, heel to load (mm)', f(S.ecc)], ['Stress coeff. top / heel / tip (1/mm³)', `${S.cTop.toExponential(3)} / ${S.cHeel.toExponential(3)} / ${S.cTip.toExponential(3)}`],
-    ['Outstand c/t vs 14ε', `${f(S.cOt)} vs ${f(S.ctLim)} (${S.cls})`], ['ψ, kσ, λp, ρ', `${f(R.aux.psi, 3)}, ${f(R.aux.ks, 3)}, ${f(R.aux.lp, 3)}, ${f(R.aux.rho, 3)}`]];
-  document.getElementById('section').innerHTML = sr.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('');
-  document.getElementById('ver').innerHTML = `<tr><th>Quantity</th><th>FE</th><th>Hand</th><th>FE / hand</th></tr>` +
-    R.ver.map(v => `<tr><td>${v[0]}</td><td>${f(v[1], 4)}</td><td>${f(v[2], 4)}</td><td>${f(v[1] / v[2])}</td></tr>`).join('');
-  drawChart(); drawSketch();
-}
-function niceMax(v) { const p = Math.pow(10, Math.floor(Math.log10(v))); return [1, 2, 2.5, 5, 10].map(m => m * p).find(m => m >= v) || v; }
-function drawChart() {
-  const W = 760, H = 300, m = { l: 52, r: 16, t: 14, b: 40 }, P = R.profile, w = R.w1s;
-  const tip = P.map(p => p.tip * w), heel = P.map(p => p.beam * w);
-  const fe = R.feValid ? FE_X.map((x, i) => [x, FE_TIP[i] * w]).filter(p => p[0] >= 0) : [];
-  document.getElementById('felg').style.display = R.feValid ? '' : 'none';
-  const all = tip.concat(heel, fe.map(p => p[1])), hi = Math.max(...all, 0.01), lo = Math.min(0, ...all);
-  const step = niceMax((hi - lo) / 5), ymax = step * Math.ceil(hi / step), ymin = -step * Math.ceil(-lo / step), nT = Math.round((ymax - ymin) / step);
-  const L = R.Ltot, X = x => m.l + x / L * (W - m.l - m.r), Y = y => m.t + (y - ymin) / (ymax - ymin) * (H - m.t - m.b);
-  const path = pts => 'M' + pts.map(p => `${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join('L');
-  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Deflection along the angle">`;
-  for (let k = 0; k <= nT; k++) { const y = ymin + step * k; s += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(y)}" y2="${Y(y)}" stroke="var(--line)"/><text x="${m.l - 6}" y="${Y(y) + 4}" text-anchor="end" class="muted">${f(y, 1)}</text>`; }
-  for (let k = 0; k <= 6; k++) { const x = L * k / 6; s += `<text x="${X(x)}" y="${H - m.b + 16}" text-anchor="middle" class="muted">${Math.round(x)}</text>`; }
-  s += `<line x1="${X(I.a)}" x2="${X(I.a)}" y1="${m.t}" y2="${H - m.b}" stroke="var(--muted)" stroke-dasharray="4 3"/><text x="${X(I.a) + 4}" y="${m.t + 12}" class="muted">bolt line B</text>`;
-  s += `<text x="${(W + m.l) / 2}" y="${H - 6}" text-anchor="middle" class="muted">x from bolt line A (mm)</text><text transform="translate(13 ${(H - m.b) / 2}) rotate(-90)" text-anchor="middle" class="muted">mm, down +</text>`;
-  s += `<path d="${path(P.map((p, i) => [p.x, heel[i]]))}" fill="none" stroke="var(--c2)" stroke-width="2"/>`;
-  if (fe.length) s += `<path d="${path(fe)}" fill="none" stroke="var(--c3)" stroke-width="2" stroke-dasharray="6 4"/>`;
-  s += `<path d="${path(P.map((p, i) => [p.x, tip[i]]))}" fill="none" stroke="var(--c1)" stroke-width="2.5"/>`;
-  const lim = Math.min(I.a / I.limO, I.limTip);
-  if (lim <= ymax) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(lim)}" y2="${Y(lim)}" stroke="var(--fail)" stroke-dasharray="2 3"/><text x="${W - m.r - 4}" y="${Y(lim) - 4}" text-anchor="end" style="fill:var(--fail)">tip limit ${f(lim, 1)} mm</text>`;
-  document.getElementById('chart').innerHTML = s + '</svg>';
-}
-function drawSketch() {
-  const W = 760, H = 190, x0 = 40, x1 = W - 40, L = R.Ltot, X = x => x0 + x / L * (x1 - x0), yb = 95;
-  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Beam sketch">`;
-  s += `<rect x="${X(0)}" y="${yb - 48}" width="${X(L) - X(0)}" height="34" fill="var(--load)" opacity="0.12"/>`;
-  for (let k = 0; k <= 24; k++) { const x = X(L * k / 24); s += `<line x1="${x}" x2="${x}" y1="${yb - 48}" y2="${yb - 8}" stroke="var(--load)"/><path d="M${x - 3},${yb - 13} L${x + 3},${yb - 13} L${x},${yb - 7}Z" fill="var(--load)"/>`; }
-  s += `<text x="${(x0 + x1) / 2}" y="${yb - 56}" text-anchor="middle" style="fill:var(--load)">w over the whole length a + b = ${Math.round(L)} mm, on the tip strip of the horizontal leg</text>`;
-  s += `<rect x="${X(0)}" y="${yb - 5}" width="${X(L) - X(0)}" height="10" fill="var(--accent)"/>`;
-  for (const [x, t] of [[0, 'A'], [I.a, 'B']]) s += `<path d="M${X(x)},${yb + 5} L${X(x) - 12},${yb + 28} L${X(x) + 12},${yb + 28}Z" fill="none" stroke="var(--ink)"/><text x="${X(x)}" y="${yb + 44}" text-anchor="middle">${t}</text>`;
-  s += `<text x="${X(L)}" y="${yb + 44}" text-anchor="middle">C</text>`;
-  for (const [a, b, t] of [[0, I.a, `a = ${I.a} mm (span)`], [I.a, L, `b = ${I.ov} mm`]]) {
-    s += `<line x1="${X(a)}" x2="${X(b)}" y1="${yb + 62}" y2="${yb + 62}" stroke="var(--muted)"/><line x1="${X(a)}" x2="${X(a)}" y1="${yb + 54}" y2="${yb + 70}" stroke="var(--muted)"/><line x1="${X(b)}" x2="${X(b)}" y1="${yb + 54}" y2="${yb + 70}" stroke="var(--muted)"/>`;
-    s += `<text x="${(X(a) + X(b)) / 2}" y="${yb + 80}" text-anchor="middle">${t}</text>`;
-  }
-  document.getElementById('sketch').innerHTML = s + '</svg><p class="sub">Angle ' + I.h + ' × ' + I.b + ' × ' + I.t + ' mm. Twist is held only at the bolt lines A and B.</p>';
-}
-document.getElementById('reset').onclick = () => { I = Object.assign({}, DEFAULT_INPUTS); FE = JSON.parse(JSON.stringify(DEFAULT_FE)); store.set('akl_inputs', null); store.set('akl_fe', null); buildInputs(); update(); };
-document.getElementById('theme').onclick = () => { const d = document.documentElement; const dark = d.dataset.theme ? d.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; d.dataset.theme = dark ? 'light' : 'dark'; };
-document.getElementById('csv').onclick = () => {
-  const q = v => typeof v === 'number' ? String(v) : `"${String(v).replace(/"/g, '""')}"`;
-  const lines = [['Input', 'Value'].map(q).join(','), ...Object.entries(I).map(([k, v]) => [k, v].map(q).join(',')), '',
-    ['Check', ...R.cases.flatMap(c => ['Ed', 'Rd', 'util', 'result'].map(x => c.name + ' ' + x))].map(q).join(','),
-    ...R.checks.map(c => [c.label, ...c.res.flatMap(x => [x.Ed, x.Rd, x.u, x.pass ? 'PASS' : 'FAIL'])].map(q).join(',')),
-    '', q('FE factors valid') + ',' + q(R.feValid ? 'YES' : 'NO: rerun FE')];
-  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv' })); a.download = 'AKL_angle_checks.csv'; a.click();
-};
-buildInputs(); update();
 const CAP = [
 {
 "angle": "L 70 x 70 x 1.5 (S250)",
 "cond": "a = 966 mm, overhang 250 mm",
 "g": 67.5,
 "n": 52.1,
-"f": 59.8,
+"f": 57.1,
 "max": 67.5,
 "maxm": "REFERENCE GRAPH",
 "min": 52.1,
@@ -367,7 +274,7 @@ const CAP = [
 "cond": "a = 986 mm, overhang 230 mm",
 "g": 69,
 "n": 50.8,
-"f": 57.9,
+"f": 56.1,
 "max": 69,
 "maxm": "REFERENCE GRAPH",
 "min": 50.8,
@@ -378,7 +285,7 @@ const CAP = [
 "cond": "a = 1006 mm, overhang 210 mm",
 "g": 70,
 "n": 49.6,
-"f": 56.1,
+"f": 55,
 "max": 70,
 "maxm": "REFERENCE GRAPH",
 "min": 49.6,
@@ -389,7 +296,7 @@ const CAP = [
 "cond": "a = 1026 mm, overhang 190 mm",
 "g": 71,
 "n": 48.4,
-"f": 54.4,
+"f": 54,
 "max": 71,
 "maxm": "REFERENCE GRAPH",
 "min": 48.4,
@@ -400,7 +307,7 @@ const CAP = [
 "cond": "a = 1046 mm, overhang 170 mm",
 "g": 69,
 "n": 47.2,
-"f": 52.9,
+"f": 53,
 "max": 69,
 "maxm": "REFERENCE GRAPH",
 "min": 47.2,
@@ -411,7 +318,7 @@ const CAP = [
 "cond": "a = 1066 mm, overhang 150 mm",
 "g": 64.5,
 "n": 45.6,
-"f": 51.4,
+"f": 52.1,
 "max": 64.5,
 "maxm": "REFERENCE GRAPH",
 "min": 45.6,
@@ -422,7 +329,7 @@ const CAP = [
 "cond": "a = 1086 mm, overhang 130 mm",
 "g": 60.5,
 "n": 44,
-"f": 50,
+"f": 50.9,
 "max": 60.5,
 "maxm": "REFERENCE GRAPH",
 "min": 44,
@@ -433,7 +340,7 @@ const CAP = [
 "cond": "a = 1106 mm, overhang 110 mm",
 "g": 57.5,
 "n": 42.5,
-"f": 48.7,
+"f": 49.7,
 "max": 57.5,
 "maxm": "REFERENCE GRAPH",
 "min": 42.5,
@@ -444,7 +351,7 @@ const CAP = [
 "cond": "a = 1126 mm, overhang 90 mm",
 "g": 54.5,
 "n": 41,
-"f": 47.5,
+"f": 48.5,
 "max": 54.5,
 "maxm": "REFERENCE GRAPH",
 "min": 41,
@@ -455,7 +362,7 @@ const CAP = [
 "cond": "a = 1146 mm, overhang 70 mm",
 "g": 51.5,
 "n": 39.6,
-"f": 46.3,
+"f": 47.3,
 "max": 51.5,
 "maxm": "REFERENCE GRAPH",
 "min": 39.6,
@@ -466,7 +373,7 @@ const CAP = [
 "cond": "a = 1166 mm, overhang 50 mm",
 "g": 49,
 "n": 38.3,
-"f": 45.1,
+"f": 46.2,
 "max": 49,
 "maxm": "REFERENCE GRAPH",
 "min": 38.3,
@@ -477,7 +384,7 @@ const CAP = [
 "cond": "a = 966 mm, overhang 250 mm",
 "g": 106.5,
 "n": 81.8,
-"f": 91.5,
+"f": 87.5,
 "max": 106.5,
 "maxm": "REFERENCE GRAPH",
 "min": 81.8,
@@ -488,7 +395,7 @@ const CAP = [
 "cond": "a = 986 mm, overhang 230 mm",
 "g": 109,
 "n": 79.7,
-"f": 88.6,
+"f": 85.8,
 "max": 109,
 "maxm": "REFERENCE GRAPH",
 "min": 79.7,
@@ -499,7 +406,7 @@ const CAP = [
 "cond": "a = 1006 mm, overhang 210 mm",
 "g": 111,
 "n": 77.7,
-"f": 85.8,
+"f": 84.2,
 "max": 111,
 "maxm": "REFERENCE GRAPH",
 "min": 77.7,
@@ -510,7 +417,7 @@ const CAP = [
 "cond": "a = 1026 mm, overhang 190 mm",
 "g": 111.5,
 "n": 75.8,
-"f": 83.3,
+"f": 82.6,
 "max": 111.5,
 "maxm": "REFERENCE GRAPH",
 "min": 75.8,
@@ -521,7 +428,7 @@ const CAP = [
 "cond": "a = 1046 mm, overhang 170 mm",
 "g": 105.5,
 "n": 74,
-"f": 80.9,
+"f": 81.1,
 "max": 105.5,
 "maxm": "REFERENCE GRAPH",
 "min": 74,
@@ -532,7 +439,7 @@ const CAP = [
 "cond": "a = 1066 mm, overhang 150 mm",
 "g": 99.5,
 "n": 71.4,
-"f": 78.7,
+"f": 79.6,
 "max": 99.5,
 "maxm": "REFERENCE GRAPH",
 "min": 71.4,
@@ -543,7 +450,7 @@ const CAP = [
 "cond": "a = 1086 mm, overhang 130 mm",
 "g": 93.5,
 "n": 68.9,
-"f": 76.6,
+"f": 78.1,
 "max": 93.5,
 "maxm": "REFERENCE GRAPH",
 "min": 68.9,
@@ -554,7 +461,7 @@ const CAP = [
 "cond": "a = 1106 mm, overhang 110 mm",
 "g": 88.5,
 "n": 66.4,
-"f": 74.6,
+"f": 76.2,
 "max": 88.5,
 "maxm": "REFERENCE GRAPH",
 "min": 66.4,
@@ -565,7 +472,7 @@ const CAP = [
 "cond": "a = 1126 mm, overhang 90 mm",
 "g": 84,
 "n": 64.1,
-"f": 72.7,
+"f": 74.3,
 "max": 84,
 "maxm": "REFERENCE GRAPH",
 "min": 64.1,
@@ -576,7 +483,7 @@ const CAP = [
 "cond": "a = 1146 mm, overhang 70 mm",
 "g": 79.5,
 "n": 61.9,
-"f": 70.9,
+"f": 72.6,
 "max": 79.5,
 "maxm": "REFERENCE GRAPH",
 "min": 61.9,
@@ -587,7 +494,7 @@ const CAP = [
 "cond": "a = 1166 mm, overhang 50 mm",
 "g": 75,
 "n": 59.8,
-"f": 69.1,
+"f": 70.9,
 "max": 75,
 "maxm": "REFERENCE GRAPH",
 "min": 59.8,
@@ -598,7 +505,7 @@ const CAP = [
 "cond": "a = 966 mm, overhang 250 mm",
 "g": 158.5,
 "n": 120.4,
-"f": 145.9,
+"f": 143.3,
 "max": 158.5,
 "maxm": "REFERENCE GRAPH",
 "min": 120.4,
@@ -609,7 +516,7 @@ const CAP = [
 "cond": "a = 986 mm, overhang 230 mm",
 "g": 162,
 "n": 117.3,
-"f": 141.2,
+"f": 140.5,
 "max": 162,
 "maxm": "REFERENCE GRAPH",
 "min": 117.3,
@@ -620,7 +527,7 @@ const CAP = [
 "cond": "a = 1006 mm, overhang 210 mm",
 "g": 164,
 "n": 114.3,
-"f": 136.8,
+"f": 137.9,
 "max": 164,
 "maxm": "REFERENCE GRAPH",
 "min": 114.3,
@@ -631,7 +538,7 @@ const CAP = [
 "cond": "a = 1026 mm, overhang 190 mm",
 "g": 161.5,
 "n": 111.4,
-"f": 132.7,
+"f": 135.1,
 "max": 161.5,
 "maxm": "REFERENCE GRAPH",
 "min": 111.4,
@@ -642,7 +549,7 @@ const CAP = [
 "cond": "a = 1046 mm, overhang 170 mm",
 "g": 152.5,
 "n": 108.7,
-"f": 128.8,
+"f": 131.4,
 "max": 152.5,
 "maxm": "REFERENCE GRAPH",
 "min": 108.7,
@@ -653,7 +560,7 @@ const CAP = [
 "cond": "a = 1066 mm, overhang 150 mm",
 "g": 143.5,
 "n": 104.9,
-"f": 125.2,
+"f": 127.9,
 "max": 143.5,
 "maxm": "REFERENCE GRAPH",
 "min": 104.9,
@@ -664,7 +571,7 @@ const CAP = [
 "cond": "a = 1086 mm, overhang 130 mm",
 "g": 135.5,
 "n": 101.1,
-"f": 121.8,
+"f": 124.6,
 "max": 135.5,
 "maxm": "REFERENCE GRAPH",
 "min": 101.1,
@@ -675,7 +582,7 @@ const CAP = [
 "cond": "a = 1106 mm, overhang 110 mm",
 "g": 128,
 "n": 97.5,
-"f": 118.6,
+"f": 121.5,
 "max": 128,
 "maxm": "REFERENCE GRAPH",
 "min": 97.5,
@@ -686,7 +593,7 @@ const CAP = [
 "cond": "a = 1126 mm, overhang 90 mm",
 "g": 121.5,
 "n": 94,
-"f": 115.5,
+"f": 118.6,
 "max": 121.5,
 "maxm": "REFERENCE GRAPH",
 "min": 94,
@@ -697,9 +604,9 @@ const CAP = [
 "cond": "a = 1146 mm, overhang 70 mm",
 "g": 115.5,
 "n": 90.7,
-"f": 112.6,
-"max": 115.5,
-"maxm": "REFERENCE GRAPH",
+"f": 115.8,
+"max": 115.8,
+"maxm": "CLOUD FEM",
 "min": 90.7,
 "minm": "NORDEN NON-FEM"
 },
@@ -708,8 +615,8 @@ const CAP = [
 "cond": "a = 1166 mm, overhang 50 mm",
 "g": 109.5,
 "n": 87.6,
-"f": 109.7,
-"max": 109.7,
+"f": 113,
+"max": 113,
 "maxm": "CLOUD FEM",
 "min": 87.6,
 "minm": "NORDEN NON-FEM"
@@ -719,7 +626,7 @@ const CAP = [
 "cond": "a = 966 mm, overhang 250 mm",
 "g": 225,
 "n": 157.8,
-"f": 200.9,
+"f": 197.6,
 "max": 225,
 "maxm": "REFERENCE GRAPH",
 "min": 157.8,
@@ -730,7 +637,7 @@ const CAP = [
 "cond": "a = 986 mm, overhang 230 mm",
 "g": 230,
 "n": 154.6,
-"f": 194.5,
+"f": 193.7,
 "max": 230,
 "maxm": "REFERENCE GRAPH",
 "min": 154.6,
@@ -741,7 +648,7 @@ const CAP = [
 "cond": "a = 1006 mm, overhang 210 mm",
 "g": 234,
 "n": 151.5,
-"f": 188.4,
+"f": 190.1,
 "max": 234,
 "maxm": "REFERENCE GRAPH",
 "min": 151.5,
@@ -752,7 +659,7 @@ const CAP = [
 "cond": "a = 1026 mm, overhang 190 mm",
 "g": 225,
 "n": 148.6,
-"f": 182.8,
+"f": 186.5,
 "max": 225,
 "maxm": "REFERENCE GRAPH",
 "min": 148.6,
@@ -763,7 +670,7 @@ const CAP = [
 "cond": "a = 1046 mm, overhang 170 mm",
 "g": 212,
 "n": 145.7,
-"f": 177.5,
+"f": 181.4,
 "max": 212,
 "maxm": "REFERENCE GRAPH",
 "min": 145.7,
@@ -774,7 +681,7 @@ const CAP = [
 "cond": "a = 1066 mm, overhang 150 mm",
 "g": 200,
 "n": 143,
-"f": 172.6,
+"f": 176.7,
 "max": 200,
 "maxm": "REFERENCE GRAPH",
 "min": 143,
@@ -785,7 +692,7 @@ const CAP = [
 "cond": "a = 1086 mm, overhang 130 mm",
 "g": 188,
 "n": 140.4,
-"f": 167.9,
+"f": 172.2,
 "max": 188,
 "maxm": "REFERENCE GRAPH",
 "min": 140.4,
@@ -796,7 +703,7 @@ const CAP = [
 "cond": "a = 1106 mm, overhang 110 mm",
 "g": 178,
 "n": 136.2,
-"f": 163.5,
+"f": 167.9,
 "max": 178,
 "maxm": "REFERENCE GRAPH",
 "min": 136.2,
@@ -807,7 +714,7 @@ const CAP = [
 "cond": "a = 1126 mm, overhang 90 mm",
 "g": 169,
 "n": 131.3,
-"f": 159.3,
+"f": 163.8,
 "max": 169,
 "maxm": "REFERENCE GRAPH",
 "min": 131.3,
@@ -818,7 +725,7 @@ const CAP = [
 "cond": "a = 1146 mm, overhang 70 mm",
 "g": 161,
 "n": 126.6,
-"f": 155.3,
+"f": 160,
 "max": 161,
 "maxm": "REFERENCE GRAPH",
 "min": 126.6,
@@ -829,9 +736,9 @@ const CAP = [
 "cond": "a = 1166 mm, overhang 50 mm",
 "g": 152,
 "n": 122.2,
-"f": 151.4,
-"max": 152,
-"maxm": "REFERENCE GRAPH",
+"f": 156.2,
+"max": 156.2,
+"maxm": "CLOUD FEM",
 "min": 122.2,
 "minm": "NORDEN NON-FEM"
 },
@@ -840,7 +747,7 @@ const CAP = [
 "cond": "a = 966 mm, overhang 250 mm",
 "g": 60.5,
 "n": 48.6,
-"f": 56.8,
+"f": 52.8,
 "max": 60.5,
 "maxm": "REFERENCE GRAPH",
 "min": 48.6,
@@ -851,7 +758,7 @@ const CAP = [
 "cond": "a = 1006 mm, overhang 210 mm",
 "g": 62.5,
 "n": 46.2,
-"f": 53.5,
+"f": 50.8,
 "max": 62.5,
 "maxm": "REFERENCE GRAPH",
 "min": 46.2,
@@ -862,7 +769,7 @@ const CAP = [
 "cond": "a = 1046 mm, overhang 170 mm",
 "g": 64.5,
 "n": 44,
-"f": 50.4,
+"f": 49,
 "max": 64.5,
 "maxm": "REFERENCE GRAPH",
 "min": 44,
@@ -884,7 +791,7 @@ const CAP = [
 "cond": "a = 1166 mm, overhang 50 mm",
 "g": 47,
 "n": 35.7,
-"f": 43.1,
+"f": 43.9,
 "max": 47,
 "maxm": "REFERENCE GRAPH",
 "min": 35.7,
@@ -895,7 +802,7 @@ const CAP = [
 "cond": "a = 966 mm, overhang 250 mm",
 "g": 96,
 "n": 76.3,
-"f": 87.1,
+"f": 80.8,
 "max": 96,
 "maxm": "REFERENCE GRAPH",
 "min": 76.3,
@@ -906,7 +813,7 @@ const CAP = [
 "cond": "a = 1006 mm, overhang 210 mm",
 "g": 100,
 "n": 72.5,
-"f": 81.8,
+"f": 77.8,
 "max": 100,
 "maxm": "REFERENCE GRAPH",
 "min": 72.5,
@@ -917,7 +824,7 @@ const CAP = [
 "cond": "a = 1046 mm, overhang 170 mm",
 "g": 100.5,
 "n": 69,
-"f": 77.2,
+"f": 75,
 "max": 100.5,
 "maxm": "REFERENCE GRAPH",
 "min": 69,
@@ -928,7 +835,7 @@ const CAP = [
 "cond": "a = 1106 mm, overhang 110 mm",
 "g": 84.5,
 "n": 62,
-"f": 71.2,
+"f": 71.1,
 "max": 84.5,
 "maxm": "REFERENCE GRAPH",
 "min": 62,
@@ -939,7 +846,7 @@ const CAP = [
 "cond": "a = 1166 mm, overhang 50 mm",
 "g": 71.5,
 "n": 55.8,
-"f": 66,
+"f": 67.2,
 "max": 71.5,
 "maxm": "REFERENCE GRAPH",
 "min": 55.8,
@@ -950,7 +857,7 @@ const CAP = [
 "cond": "a = 966 mm, overhang 250 mm",
 "g": 143,
 "n": 112.4,
-"f": 139,
+"f": 132.5,
 "max": 143,
 "maxm": "REFERENCE GRAPH",
 "min": 112.4,
@@ -961,7 +868,7 @@ const CAP = [
 "cond": "a = 1006 mm, overhang 210 mm",
 "g": 147.5,
 "n": 106.7,
-"f": 130.5,
+"f": 127.4,
 "max": 147.5,
 "maxm": "REFERENCE GRAPH",
 "min": 106.7,
@@ -972,7 +879,7 @@ const CAP = [
 "cond": "a = 1046 mm, overhang 170 mm",
 "g": 145.5,
 "n": 101.5,
-"f": 123,
+"f": 122.8,
 "max": 145.5,
 "maxm": "REFERENCE GRAPH",
 "min": 101.5,
@@ -983,7 +890,7 @@ const CAP = [
 "cond": "a = 1106 mm, overhang 110 mm",
 "g": 122.5,
 "n": 91.1,
-"f": 113.4,
+"f": 115.4,
 "max": 122.5,
 "maxm": "REFERENCE GRAPH",
 "min": 91.1,
@@ -994,8 +901,8 @@ const CAP = [
 "cond": "a = 1166 mm, overhang 50 mm",
 "g": 104.5,
 "n": 81.9,
-"f": 105,
-"max": 105,
+"f": 107.3,
+"max": 107.3,
 "maxm": "CLOUD FEM",
 "min": 81.9,
 "minm": "NORDEN NON-FEM"
@@ -1005,7 +912,7 @@ const CAP = [
 "cond": "a = 966 mm, overhang 250 mm",
 "g": 203,
 "n": 157.8,
-"f": 191.4,
+"f": 182.6,
 "max": 203,
 "maxm": "REFERENCE GRAPH",
 "min": 157.8,
@@ -1016,7 +923,7 @@ const CAP = [
 "cond": "a = 1006 mm, overhang 210 mm",
 "g": 210,
 "n": 149.7,
-"f": 179.7,
+"f": 175.7,
 "max": 210,
 "maxm": "REFERENCE GRAPH",
 "min": 149.7,
@@ -1027,7 +934,7 @@ const CAP = [
 "cond": "a = 1046 mm, overhang 170 mm",
 "g": 203,
 "n": 142.2,
-"f": 169.5,
+"f": 169.2,
 "max": 203,
 "maxm": "REFERENCE GRAPH",
 "min": 142.2,
@@ -1038,7 +945,7 @@ const CAP = [
 "cond": "a = 1106 mm, overhang 110 mm",
 "g": 170.5,
 "n": 127.4,
-"f": 156.3,
+"f": 159.3,
 "max": 170.5,
 "maxm": "REFERENCE GRAPH",
 "min": 127.4,
@@ -1049,9 +956,9 @@ const CAP = [
 "cond": "a = 1166 mm, overhang 50 mm",
 "g": 145.5,
 "n": 114.3,
-"f": 144.8,
-"max": 145.5,
-"maxm": "REFERENCE GRAPH",
+"f": 148.3,
+"max": 148.3,
+"maxm": "CLOUD FEM",
 "min": 114.3,
 "minm": "NORDEN NON-FEM"
 },
@@ -1060,7 +967,7 @@ const CAP = [
 "cond": "a = 966 mm, overhang 250 mm",
 "g": 56,
 "n": 45.5,
-"f": 52.9,
+"f": 49.1,
 "max": 56,
 "maxm": "REFERENCE GRAPH",
 "min": 45.5,
@@ -1071,7 +978,7 @@ const CAP = [
 "cond": "a = 1006 mm, overhang 210 mm",
 "g": 58.5,
 "n": 43.2,
-"f": 50.9,
+"f": 47.3,
 "max": 58.5,
 "maxm": "REFERENCE GRAPH",
 "min": 43.2,
@@ -1082,7 +989,7 @@ const CAP = [
 "cond": "a = 1046 mm, overhang 170 mm",
 "g": 59.5,
 "n": 41.2,
-"f": 48.2,
+"f": 45.6,
 "max": 59.5,
 "maxm": "REFERENCE GRAPH",
 "min": 41.2,
@@ -1093,7 +1000,7 @@ const CAP = [
 "cond": "a = 1106 mm, overhang 110 mm",
 "g": 52.5,
 "n": 37.1,
-"f": 44.5,
+"f": 43.2,
 "max": 52.5,
 "maxm": "REFERENCE GRAPH",
 "min": 37.1,
@@ -1104,7 +1011,7 @@ const CAP = [
 "cond": "a = 1166 mm, overhang 50 mm",
 "g": 44.5,
 "n": 33.4,
-"f": 41.3,
+"f": 40.9,
 "max": 44.5,
 "maxm": "REFERENCE GRAPH",
 "min": 33.4,
@@ -1115,7 +1022,7 @@ const CAP = [
 "cond": "a = 966 mm, overhang 250 mm",
 "g": 89,
 "n": 71.4,
-"f": 81.4,
+"f": 75.2,
 "max": 89,
 "maxm": "REFERENCE GRAPH",
 "min": 71.4,
@@ -1126,7 +1033,7 @@ const CAP = [
 "cond": "a = 1006 mm, overhang 210 mm",
 "g": 92,
 "n": 67.9,
-"f": 78.1,
+"f": 72.3,
 "max": 92,
 "maxm": "REFERENCE GRAPH",
 "min": 67.9,
@@ -1137,7 +1044,7 @@ const CAP = [
 "cond": "a = 1046 mm, overhang 170 mm",
 "g": 94.5,
 "n": 64.6,
-"f": 73.8,
+"f": 69.7,
 "max": 94.5,
 "maxm": "REFERENCE GRAPH",
 "min": 64.6,
@@ -1148,7 +1055,7 @@ const CAP = [
 "cond": "a = 1106 mm, overhang 110 mm",
 "g": 81,
 "n": 58.1,
-"f": 68.2,
+"f": 66.1,
 "max": 81,
 "maxm": "REFERENCE GRAPH",
 "min": 58.1,
@@ -1159,7 +1066,7 @@ const CAP = [
 "cond": "a = 1166 mm, overhang 50 mm",
 "g": 69,
 "n": 52.3,
-"f": 63.2,
+"f": 62.6,
 "max": 69,
 "maxm": "REFERENCE GRAPH",
 "min": 52.3,
@@ -1170,9 +1077,9 @@ const CAP = [
 "cond": "a = 966 mm, overhang 250 mm",
 "g": 132.5,
 "n": 105.3,
-"f": 132.7,
-"max": 132.7,
-"maxm": "CLOUD FEM",
+"f": 123.2,
+"max": 132.5,
+"maxm": "REFERENCE GRAPH",
 "min": 105.3,
 "minm": "NORDEN NON-FEM"
 },
@@ -1181,7 +1088,7 @@ const CAP = [
 "cond": "a = 1006 mm, overhang 210 mm",
 "g": 137,
 "n": 100,
-"f": 124.7,
+"f": 118.5,
 "max": 137,
 "maxm": "REFERENCE GRAPH",
 "min": 100,
@@ -1192,7 +1099,7 @@ const CAP = [
 "cond": "a = 1046 mm, overhang 170 mm",
 "g": 140,
 "n": 95.2,
-"f": 117.7,
+"f": 114.2,
 "max": 140,
 "maxm": "REFERENCE GRAPH",
 "min": 95.2,
@@ -1203,7 +1110,7 @@ const CAP = [
 "cond": "a = 1106 mm, overhang 110 mm",
 "g": 118,
 "n": 85.4,
-"f": 108.6,
+"f": 108.2,
 "max": 118,
 "maxm": "REFERENCE GRAPH",
 "min": 85.4,
@@ -1214,9 +1121,9 @@ const CAP = [
 "cond": "a = 1166 mm, overhang 50 mm",
 "g": 101,
 "n": 76.8,
-"f": 100.6,
-"max": 101,
-"maxm": "REFERENCE GRAPH",
+"f": 102.1,
+"max": 102.1,
+"maxm": "CLOUD FEM",
 "min": 76.8,
 "minm": "NORDEN NON-FEM"
 },
@@ -1225,7 +1132,7 @@ const CAP = [
 "cond": "a = 966 mm, overhang 250 mm",
 "g": 188,
 "n": 148,
-"f": 182.7,
+"f": 169.8,
 "max": 188,
 "maxm": "REFERENCE GRAPH",
 "min": 148,
@@ -1236,7 +1143,7 @@ const CAP = [
 "cond": "a = 1006 mm, overhang 210 mm",
 "g": 194,
 "n": 140.4,
-"f": 171.7,
+"f": 163.4,
 "max": 194,
 "maxm": "REFERENCE GRAPH",
 "min": 140.4,
@@ -1247,7 +1154,7 @@ const CAP = [
 "cond": "a = 1046 mm, overhang 170 mm",
 "g": 195.5,
 "n": 133.4,
-"f": 162.1,
+"f": 157.4,
 "max": 195.5,
 "maxm": "REFERENCE GRAPH",
 "min": 133.4,
@@ -1258,7 +1165,7 @@ const CAP = [
 "cond": "a = 1106 mm, overhang 110 mm",
 "g": 165,
 "n": 119.6,
-"f": 149.7,
+"f": 149.2,
 "max": 165,
 "maxm": "REFERENCE GRAPH",
 "min": 119.6,
@@ -1269,37 +1176,190 @@ const CAP = [
 "cond": "a = 1166 mm, overhang 50 mm",
 "g": 140.5,
 "n": 107.4,
-"f": 138.7,
-"max": 140.5,
-"maxm": "REFERENCE GRAPH",
+"f": 141.1,
+"max": 141.1,
+"maxm": "CLOUD FEM",
 "min": 107.4,
 "minm": "NORDEN NON-FEM"
 }
 ];
+const GROUPS = [
+  ['Angle section', [['h', 'Vertical leg height', 'mm'], ['b', 'Horizontal leg length', 'mm'], ['t', 'Thickness', 'mm'], ['xs', 'Bearing strip width', 'mm'], ['e', 'Load eccentricity e from inner face of vertical leg', 'mm']]],
+  ['Support and connection', [['zb', 'Bolt / rivet height from bottom', 'mm'], ['a', 'Span a between bolt lines', 'mm'], ['ov', 'Overhang b beyond bolt line B', 'mm'],
+    ['conn', 'Connection type', '', ['Bolt', 'Rivet']], ['bolt', 'Bolt size and class', '', Object.keys(BOLTS)], ['rivet', 'Rivet (from drawing)', '', Object.keys(RIVETS)]]],
+  ['Bins', [['binL', 'Bin length along the angle', 'mm'], ['binW', 'Bin width', 'mm'], ['binH', 'Bin height', 'mm'], ['nbin', 'Number of bins along one angle', '-'], ['mbin', 'Max gross bin mass', 'kg']]],
+  ['Material and factors', [['grade', 'Material grade', '', Object.keys(GRADES)], ['fuOver', 'fu override (0 = from grade)', 'MPa'], ['gULS', 'ULS load factor', '-'], ['gSLS', 'SLS load factor', '-']]],
+  ['Serviceability limits (assumed)', [['limG', 'Span heel limit a / …', '-'], ['limC', 'Overhang limit b / …', '-'], ['limO', 'Leg tip limit a / …', '-'], ['limTip', 'Leg tip absolute limit', 'mm'], ['limRel', 'Bin tilt limit', 'mm']]],
+];
+const RANGES = { h: [30, 150], b: [30, 150], t: [0.75, 6], xs: [2, 40], e: [5, 145], zb: [5, 145], a: [300, 3000], ov: [1, 1000], binL: [100, 1000], binW: [100, 1200], binH: [50, 800],
+  nbin: [1, 10], mbin: [1, 500], fuOver: [0, 1000], gULS: [1, 2], gSLS: [0.5, 1.5], limG: [50, 1000], limC: [50, 1000], limO: [50, 1000], limTip: [0.1, 50], limRel: [0.1, 50] };
+const store = { get(k) { try { return JSON.parse(localStorage.getItem(k)) } catch (e) { return null } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)) } catch (e) {} } };
+let I = Object.assign({}, DEFAULT_INPUTS, store.get('akl3_inputs') || {});
+const f = (v, d = 2) => (v === undefined || v === null || !isFinite(v)) ? '–' : Math.abs(v) >= 1e5 ? v.toExponential(3) : v.toFixed(d);
+const tag = p => `<span class="tag ${p ? 'pass' : 'fail'}">${p ? 'PASS' : 'FAIL'}</span>`;
+function buildInputs() {
+  document.getElementById('inputs').innerHTML = GROUPS.map(([g, fs], i) => `<details class="grp"${i < 4 ? ' open' : ''}><summary>${g}</summary>` + fs.map(([k, l, u, opts]) =>
+    `<div class="field" id="row_${k}"><label for="in_${k}">${l}</label>` + (opts ? `<select id="in_${k}">${opts.map(o => `<option${o === I[k] ? ' selected' : ''}>${o}</option>`).join('')}</select>`
+      : `<input id="in_${k}" type="number" step="any" min="${RANGES[k][0]}" max="${RANGES[k][1]}" value="${I[k]}">`) + `<span class="u">${u}</span></div>`).join('') + '</details>').join('');
+  document.querySelectorAll('#inputs input').forEach(el => el.addEventListener('input', () => {
+    const k = el.id.slice(3), v = parseFloat(el.value), [lo, hi] = RANGES[k], ok = isFinite(v) && v >= lo && v <= hi;
+    el.classList.toggle('bad', !ok); el.title = ok ? '' : `Enter a value between ${lo} and ${hi}`;
+    if (ok) { I[k] = v; store.set('akl3_inputs', I); update(); } }));
+  document.querySelectorAll('#inputs select').forEach(el => el.addEventListener('change', () => { I[el.id.slice(3)] = el.value; store.set('akl3_inputs', I); update(); }));
+}
+let R;
+function update() {
+  R = calc(I);
+  document.getElementById('row_bolt').style.display = I.conn === 'Bolt' ? '' : 'none';
+  document.getElementById('row_rivet').style.display = I.conn === 'Rivet' ? '' : 'none';
+  document.getElementById('banner').innerHTML = R.warn.length ? `<div class="banner warn"><b>Check the inputs:</b><ul>${R.warn.map(w => `<li>${w}</li>`).join('')}</ul></div>`
+    : `<div class="banner ok">Inputs are consistent and inside the FE calibration range.</div>`;
+  const C = R.conn, S = R.sec, G = R.geo, L = R.load;
+  document.getElementById('tiles').innerHTML = R.cases.map((c, k) => {
+    const u = R.ulsSum[k], s = R.slsSum[k], p = u.pass && s.pass;
+    return `<div class="tile ${p ? 'pass' : 'fail'}"><div class="k">${c.name}: ${f(c.wb, 3)} N/mm bin load</div><div class="v">${p ? 'PASS' : 'FAIL'}</div>
+      <div class="d">ULS max ${f(u.u)} (${u.governing})<br>SLS max ${f(s.u)} (${s.governing})</div></div>`; }).join('');
+  const tbl = (list, title) => `<tr><th>Check</th><th colspan="4">${R.cases[0].name}</th><th colspan="4">${R.cases[1].name}</th><th>Unit</th><th style="text-align:left">Basis</th></tr>
+     <tr><th></th><th>Ed</th><th>Rd</th><th>Util</th><th>Result</th><th>Ed</th><th>Rd</th><th>Util</th><th>Result</th><th></th><th></th></tr>` +
+    list.map(ch => `<tr${/FE-cal/.test(ch.note) ? ' class="fe"' : ''}><td>${ch.label}</td>${ch.res.map(x => `<td>${f(x.Ed)}</td><td>${f(x.Rd)}</td><td>${f(x.u)}</td><td>${tag(x.pass)}</td>`).join('')}<td>${ch.unit}</td><td class="note">${ch.note}</td></tr>`).join('');
+  document.getElementById('uls').innerHTML = tbl(R.uls) + `<tr class="band"><td>Maximum utilisation, ULS</td>${R.ulsSum.map(s => `<td></td><td></td><td>${f(s.u)}</td><td>${tag(s.pass)}</td>`).join('')}<td></td><td></td></tr>`;
+  document.getElementById('sls').innerHTML = tbl(R.sls) + `<tr class="band"><td>Maximum utilisation, SLS</td>${R.slsSum.map(s => `<td></td><td></td><td>${f(s.u)}</td><td>${tag(s.pass)}</td>`).join('')}<td></td><td></td></tr>` +
+    `<tr><td>Twist at midspan (°), information</td>${R.cases.map(c => `<td colspan="4">${f(c.S.twMid * 180 / Math.PI)}</td>`).join('')}<td></td><td class="note">FE-calibrated</td></tr>`;
+  document.getElementById('fixed').innerHTML = [['E', `${FIXED.E} MPa`], ['ν', FIXED.nu], ['γM0 / γM1 / γM2', `${FIXED.gM0} / ${FIXED.gM1} / ${FIXED.gM2}`], ['fy / fu', `${R.fy} / ${R.fu} MPa`],
+    ['Area / mass', `${f(S.Ar, 1)} mm² / ${f(S.kgm, 3)} kg/m`], ['J / I_eff', `${f(S.Jt, 1)} / ${f(S.Ieff, 0)} mm⁴`], ['Outstand c/t, ρ', `${f(S.cOt)}, ${f(R.aux.rho, 3)}`],
+    ['Share of a bin per angle', FIXED.share], ['Rim contact width', `${FIXED.rim} mm`], ['Angle end to bolt line A', `${FIXED.endX} mm`]].map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('');
+  document.getElementById('loads').innerHTML = `<tr><th>Quantity</th><th>Value</th><th style="text-align:left">Formula</th></tr>` + [
+    ['Torque lever arm (heel mid-line to load)', `${f(G.ecc)} mm`, 'e + t/2'], ['Effective cantilever arm of horizontal leg', `${f(G.arm)} mm`, 'e (inner face to load)'],
+    ['Load to free edge of horizontal leg', `${f(G.tipDist)} mm`, 'b − t − e'], ['Bin bearing length along the angle', `${f(G.lb, 0)} mm`, 'bin length'],
+    ['Loaded length a + b', `${f(G.Ltot, 0)} mm`, ''], ['Load of one bin on one angle', `${f(L.Pbin, 1)} N`, 'm·g·0.5'], ['Angle self-weight', `${f(L.wsw, 4)} N/mm`, 'A·ρ·g'],
+    ['Case 1 bin line load (characteristic)', `${f(L.wb1, 3)} N/mm`, 'P_bin / bearing length'], ['Case 2 bin line load (characteristic)', `${f(L.wb2, 3)} N/mm`, 'n·P_bin / (a + b)'],
+    ['Case 1 ULS / SLS vertical line load', `${f(R.cases[0].U.w, 3)} / ${f(R.cases[0].S.w, 3)} N/mm`, 'γ·(w_bin + w_sw)'],
+    ['Case 2 ULS / SLS vertical line load', `${f(R.cases[1].U.w, 3)} / ${f(R.cases[1].S.w, 3)} N/mm`, 'γ·(w_bin + w_sw)'],
+    ['Lever arm bolt to heel contact', `${f(G.zc)} mm`, 'zb − t/2']].map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td class="note">${r[2]}</td></tr>`).join('');
+  document.getElementById('conn').innerHTML = `<tr><th>Quantity</th><th>Value</th><th style="text-align:left">Basis</th></tr>` + [
+    ['Fastener', C.name, I.conn === 'Rivet' ? `hole ${C.hole} mm, grip ${C.gripMin}–${C.gripMax} mm` : `d ${C.d}, d0 ${C.d0}, As ${C.As} mm², fub ${C.fub} MPa`],
+    ['Shear resistance Fv,Rd', `${f(C.FvRd, 0)} N`, I.conn === 'Bolt' ? 'αv·fub·As/γM2' : 'drawing 4400 N / γM2'], ['Tension resistance Ft,Rd', `${f(C.FtRd, 0)} N`, I.conn === 'Bolt' ? '0.9·fub·As/γM2' : 'drawing 6000 N / γM2'],
+    ['Bearing resistance of the angle Fb,Rd', `${f(C.FbRd, 0)} N`, I.conn === 'Bolt' ? `2.5·αb·kt·fu·d·t/γM2, αb ${f(C.ab, 3)}` : `α·fu·d·t/γM2, α ${f(C.alpha, 3)}`],
+    ['Pull-over resistance Fp,Rd', `${f(C.FpRd, 0)} N`, `dw ${C.dw} mm · t · fu / γM2`],
+    ...R.cases.map(c => [`${c.name}: shear A / B (ULS)`, `${f(c.U.VA, 0)} / ${f(c.U.VB, 0)} N`, 'FE-calibrated reactions']),
+    ...R.cases.map(c => [`${c.name}: tension A / B (ULS)`, `${f(c.U.TtA, 0)} / ${f(c.U.TtB, 0)} N`, 'torque / (zb − t/2), FE-calibrated'])].map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td class="note">${r[2]}</td></tr>`).join('');
+  const feRows = [['Heel deflection, midspan (SLS)', c => c.S.heelMid, 'mm', 3], ['Heel deflection, overhang tip (SLS)', c => c.S.heelOv, 'mm', 3], ['Twist, midspan (SLS)', c => c.S.twMid * 180 / Math.PI, '°', 2],
+    ['Twist, overhang tip (SLS)', c => c.S.twOv * 180 / Math.PI, '°', 2], ['Max leg tip deflection (SLS)', c => c.S.tip, 'mm', 2], ['Max tip relative to heel (SLS)', c => c.S.rel, 'mm', 2],
+    ['Fastener shear at B (ULS)', c => c.U.VB, 'N', 0], ['Fastener tension at B (ULS)', c => c.U.TtB, 'N', 0], ['von Mises, member (ULS)', c => c.U.vm, 'MPa', 1],
+    ['Leg transverse stress (ULS)', c => c.U.sLeg, 'MPa', 1], ['Buckling factor α_cr (ULS)', c => c.U.aCr, '-', 2]];
+  document.getElementById('fe').innerHTML = `<tr><th>Quantity</th><th>${R.cases[0].name}</th><th>${R.cases[1].name}</th><th>Unit</th></tr>` +
+    feRows.map(([l, g, u, d]) => `<tr class="fe"><td>${l}</td>${R.cases.map(c => `<td>${f(g(c), d)}</td>`).join('')}<td>${u}</td></tr>`).join('') +
+    `<tr><td colspan="4" class="note">Calibration factors at these inputs: ${Object.entries(R.k).map(([k, v]) => `${k} ${f(v, 3)}`).join(', ')}</td></tr>`;
+  drawSketch(); drawElev(); drawChart();
+}
+function arrowDim(x1, y1, x2, y2, label, off = 0, cls = 'dim', vertical = false) {
+  const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+  let s = `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--accent)" stroke-width="1" marker-start="url(#ar)" marker-end="url(#ar)"/>`;
+  s += vertical ? `<text x="${mx + off}" y="${my + 4}" class="${cls}" text-anchor="${off < 0 ? 'end' : 'start'}">${label}</text>` : `<text x="${mx}" y="${my + off}" class="${cls}" text-anchor="middle">${label}</text>`;
+  return s;
+}
+const DEFS = `<defs><marker id="ar" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,2 L10,5 L0,8 z" fill="var(--accent)"/></marker>
+  <marker id="ld" viewBox="0 0 10 10" refX="5" refY="9" markerWidth="14" markerHeight="14" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,0 L5,10 z" fill="var(--load)"/></marker>
+  <pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="var(--muted)" stroke-width="1"/></pattern></defs>`;
+function drawSketch() {
+  const W = 480, H = 360, sc = Math.min(230 / I.b, 190 / I.h, 4.5), ox = 160, oy = 290;         // heel outer corner at (ox, oy)
+  const X = y => ox + y * sc, Y = z => oy - z * sc, t = I.t, zb = I.zb, e = I.e;
+  const d0 = R.conn.d0, head = R.conn.dw;
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Section sketch">${DEFS}`;
+  s += `<text x="${W / 2}" y="16" text-anchor="middle" style="font-weight:600">Section at bolt line (to scale)</text>`;
+  s += `<rect x="${X(-8)}" y="${Y(I.h + 18)}" width="${8 * sc}" height="${(I.h + 34) * sc}" fill="var(--plate)" stroke="var(--ink)" stroke-width="1"/>`;
+  s += `<text x="${X(-8) - 6}" y="${Y(I.h + 10)}" text-anchor="end" class="muted">Upright plate</text>`;
+  s += `<path d="M${X(0)},${Y(0)} L${X(I.b)},${Y(0)} L${X(I.b)},${Y(t)} L${X(t)},${Y(t)} L${X(t)},${Y(I.h)} L${X(0)},${Y(I.h)} Z" fill="var(--steel)" stroke="var(--ink)" stroke-width="1.2"/>`;
+  // fastener
+  s += `<rect x="${X(-14)}" y="${Y(zb + d0 / 2)}" width="${(t + 20) * sc}" height="${d0 * sc}" fill="var(--ink)" opacity=".85"/>`;
+  s += `<rect x="${X(t)}" y="${Y(zb + head / 2)}" width="${Math.max(2, 3 * sc / 2)}" height="${head * sc}" fill="var(--ink)"/>`;
+  s += `<text x="${X(t) + 12}" y="${Y(zb) + 18}" class="muted">${I.conn === 'Bolt' ? I.bolt + ' bolt' : 'Rivet Ø' + R.conn.d}</text>`;
+  // bearing strip and bin
+  const sL = X(t + e - I.xs / 2), sR = X(t + e + I.xs / 2);
+  s += `<rect x="${sL}" y="${Y(t) - 4}" width="${sR - sL}" height="4" fill="var(--load)"/>`;
+  const binH = Math.min(I.binH * sc, 70), bx = sL;
+  s += `<rect x="${bx}" y="${Y(t) - 4 - binH}" width="${W - 10 - bx}" height="${binH}" fill="url(#hatch)" stroke="var(--muted)"/>`;
+  s += `<text x="${W - 14}" y="${Y(t) - 12 - binH / 2}" text-anchor="end" class="muted">Bin</text>`;
+  // load P
+  s += `<line x1="${X(t + e)}" y1="${Y(t) - binH - 50}" x2="${X(t + e)}" y2="${Y(t) - 6}" stroke="var(--load)" stroke-width="3" marker-end="url(#ld)"/>`;
+  s += `<text x="${X(t + e) + 6}" y="${Y(t) - binH - 40}" style="fill:var(--load);font-weight:700">P</text>`;
+  // dimensions
+  s += arrowDim(X(t), Y(t) - binH - 22, X(t + e), Y(t) - binH - 22, `e = ${e}`, -5);
+  s += arrowDim(X(0), Y(-14), X(I.b), Y(-14), `b = ${I.b}`, 14);
+  s += arrowDim(X(-30), Y(0), X(-30), Y(I.h), `h = ${I.h}`, -6, 'dim', true);
+  s += arrowDim(X(-18), Y(0), X(-18), Y(zb), `zb = ${zb}`, -6, 'dim', true);
+  s += arrowDim(sL, Y(-4), sR, Y(-4), `xs = ${I.xs}`, 12);
+  s += `<text x="${X(I.b) + 4}" y="${Y(t / 2) + 4}" class="dim">t = ${t}</text>`;
+  s += `<text x="${X(t) + 6}" y="${Y(I.h * 0.7)}" class="muted">Vertical leg</text><text x="${X(I.b * 0.35)}" y="${Y(-24) + 14}" class="muted">Horizontal leg (cantilever)</text>`;
+  s += `<text x="${X(-4)}" y="${Y(0) + 42}" class="muted">Heel bears on upright</text>`;
+  document.getElementById('sk1').innerHTML = s + '</svg>';
+}
+function drawElev() {
+  const W = 460, H = 360, x0 = 30, x1 = W - 20, L = R.geo.Ltot + FIXED.endX, X = x => x0 + (x + FIXED.endX) / L * (x1 - x0), yb = 220;
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Elevation sketch">${DEFS}`;
+  s += `<text x="${W / 2}" y="16" text-anchor="middle" style="font-weight:600">Elevation along the angle</text>`;
+  const n = I.nbin, lb = I.binL, tot = R.geo.Ltot, gap = n > 1 ? Math.max(0, (tot - n * lb) / n) : 0;
+  for (let k = 0; k < n; k++) { const xa = k * (lb + gap) + gap / 2, xb = xa + lb; if (xb > tot + 1) break;
+    s += `<rect x="${X(xa)}" y="${yb - 70}" width="${X(xb) - X(xa)}" height="58" fill="url(#hatch)" stroke="var(--muted)"/>`;
+    s += `<text x="${(X(xa) + X(xb)) / 2}" y="${yb - 38}" text-anchor="middle" class="muted">bin ${k + 1}</text>`; }
+  s += `<rect x="${X(-FIXED.endX)}" y="${yb - 10}" width="${X(tot) - X(-FIXED.endX)}" height="10" fill="var(--steel)" stroke="var(--ink)"/>`;
+  for (const [x, t] of [[0, 'A'], [I.a, 'B']]) s += `<circle cx="${X(x)}" cy="${yb - 5}" r="3.5" fill="var(--ink)"/><rect x="${X(x) - 5}" y="${yb}" width="10" height="36" fill="var(--plate)" stroke="var(--ink)"/><text x="${X(x)}" y="${yb + 52}" text-anchor="middle">${t}</text>`;
+  s += `<text x="${X(tot)}" y="${yb + 22}" text-anchor="end" class="muted">free end</text>`;
+  s += arrowDim(X(0), yb + 70, X(I.a), yb + 70, `a = ${I.a}`, -5) + arrowDim(X(I.a), yb + 70, X(tot), yb + 70, `b = ${I.ov}`, -5);
+  s += arrowDim(X(0), yb + 100, X(Math.min(lb, tot)), yb + 100, `bin length ${lb}`, -5);
+  s += `<text x="${W / 2}" y="${yb - 90}" text-anchor="middle" style="fill:var(--load)">${n} bin(s) × ${I.mbin} kg, one bolt/rivet at A and at B</text>`;
+  document.getElementById('sk2').innerHTML = s + '</svg>';
+}
+function niceMax(v) { const p = Math.pow(10, Math.floor(Math.log10(v))); return [1, 2, 2.5, 5, 10].map(m => m * p).find(m => m >= v) || v; }
+function drawChart() {
+  const W = 760, H = 280, m = { l: 52, r: 16, t: 14, b: 40 }, P = R.profile, S = R.sec;
+  const ser = R.cases.map(c => P.map(p => R.k.tip * (p.beam * c.S.w + p.tw * c.S.mt * S.bm + c.S.dLeg)));
+  const heel = P.map(p => R.k.heelMid * p.beam * R.cases[0].S.w);
+  const all = ser.flat().concat(heel), hi = Math.max(...all, 0.01), lo = Math.min(0, ...all);
+  const step = niceMax((hi - lo) / 5), ymax = step * Math.ceil(hi / step), ymin = -step * Math.ceil(-lo / step), nT = Math.round((ymax - ymin) / step);
+  const L = R.geo.Ltot, X = x => m.l + x / L * (W - m.l - m.r), Y = y => m.t + (y - ymin) / (ymax - ymin) * (H - m.t - m.b);
+  const path = v => 'M' + P.map((p, i) => `${X(p.x).toFixed(1)},${Y(v[i]).toFixed(1)}`).join('L');
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Deflection along the angle">`;
+  for (let k = 0; k <= nT; k++) { const y = ymin + step * k; s += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(y)}" y2="${Y(y)}" stroke="var(--line)"/><text x="${m.l - 6}" y="${Y(y) + 4}" text-anchor="end" class="muted">${f(y, 1)}</text>`; }
+  for (let k = 0; k <= 6; k++) { const x = L * k / 6; s += `<text x="${X(x)}" y="${H - m.b + 16}" text-anchor="middle" class="muted">${Math.round(x)}</text>`; }
+  s += `<line x1="${X(I.a)}" x2="${X(I.a)}" y1="${m.t}" y2="${H - m.b}" stroke="var(--muted)" stroke-dasharray="4 3"/><text x="${X(I.a) + 4}" y="${m.t + 12}" class="muted">bolt line B</text>`;
+  s += `<text x="${(W + m.l) / 2}" y="${H - 6}" text-anchor="middle" class="muted">x from bolt line A (mm)</text><text transform="translate(13 ${(H - m.b) / 2}) rotate(-90)" text-anchor="middle" class="muted">mm, down +</text>`;
+  s += `<path d="${path(heel)}" fill="none" stroke="var(--c2)" stroke-width="2"/><path d="${path(ser[1])}" fill="none" stroke="var(--c3)" stroke-width="2"/><path d="${path(ser[0])}" fill="none" stroke="var(--c1)" stroke-width="2.5"/>`;
+  const lim = Math.min(I.a / I.limO, I.limTip);
+  if (lim <= ymax) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(lim)}" y2="${Y(lim)}" stroke="var(--fail)" stroke-dasharray="2 3"/><text x="${W - m.r - 4}" y="${Y(lim) - 4}" text-anchor="end" style="fill:var(--fail)">tip limit ${f(lim, 1)} mm</text>`;
+  document.getElementById('chart').innerHTML = s + '</svg>';
+}
 function drawCap() {
-  const M = ['Reference Graph', 'Norden Non-FEM', 'Cloud FEM'], K = ['g', 'n', 'f'];
+  const K = ['g', 'n', 'f'];
   const cellv = (c, k) => { const v = c[k], mx = c.max === v; return `<td${mx ? ' style="background:var(--pass-bg);color:var(--pass);font-weight:700"' : ''}>${v == null ? '–' : v.toFixed(1)}</td>`; };
-  document.getElementById('cap').innerHTML = '<tr><th>No.</th><th>Angle type / size</th><th style="text-align:left">Loading condition</th><th>Reference Graph kg</th><th>Norden Non-FEM kg</th><th>Cloud FEM kg</th><th>Final maximum kg</th><th style="text-align:left">Method (max)</th><th>Governing (lower) kg</th></tr>' +
-    CAP.map((c, i) => `<tr><td>${i + 1}</td><td>${c.angle}</td><td class="note">${c.cond}</td>${K.map(k => cellv(c, k)).join('')}<td><b>${c.max.toFixed(1)}</b></td><td class="note">${c.maxm}</td><td>${c.min.toFixed(1)} <span class="sub">${c.minm}</span></td></tr>`).join('');
+  document.getElementById('cap').innerHTML = '<tr><th>No.</th><th>Angle type / size</th><th style="text-align:left">Loading condition</th><th>Reference Graph kg</th><th>Norden Non-FEM kg</th><th>Cloud FEM kg</th><th>Maximum calculated kg</th><th style="text-align:left">Method (max)</th></tr>' +
+    CAP.map((c, i) => `<tr><td>${i + 1}</td><td>${c.angle}</td><td class="note">${c.cond}</td>${K.map(k => cellv(c, k)).join('')}<td><b>${c.max.toFixed(1)}</b></td><td class="note">${c.maxm}</td></tr>`).join('');
   const top = k => CAP.reduce((m, c) => (c[k] ?? -1) > (m[k] ?? -1) ? c : m);
-  const g = top('g'), n = top('n'), f = top('f'), x = top('max');
+  const g = top('g'), n = top('n'), fm = top('f'), x = top('max');
   document.getElementById('capmax').innerHTML = '<tr><th>Result</th><th>Capacity kg</th><th style="text-align:left">Angle and condition</th></tr>' + [
-    ['Maximum – Reference Graph', g.g, g], ['Maximum – Norden Non-FEM', n.n, n], ['Maximum – Cloud FEM', f.f, f],
-    ['FINAL MAXIMUM CALCULATED CAPACITY OF THE ANGLE (' + x.maxm + ')', x.max, x], ['Governing (lower of the three) for the same angle, for design (' + x.minm + ')', x.min, x]]
+    ['Maximum – Reference Graph', g.g, g], ['Maximum – Norden Non-FEM', n.n, n], ['Maximum – Cloud FEM', fm.f, fm],
+    ['MAXIMUM CALCULATED CAPACITY = MAX(3), from ' + x.maxm, x.max, x], ['Governing (lowest of the three) for the same angle, for design (' + x.minm + ')', x.min, x]]
     .map(([l, v, c], i) => `<tr${i === 3 ? ' style="background:var(--pass-bg)"' : ''}><td><b>${l}</b></td><td><b>${v.toFixed(1)}</b></td><td class="note">${c.angle}, ${c.cond}</td></tr>`).join('');
-  const W = 760, H = 280, m = { l: 44, r: 12, t: 12, b: 36 }, N = CAP.length;
-  const ymax = 250, X = i => m.l + i / (N - 1) * (W - m.l - m.r), Y = v => m.t + (1 - v / ymax) * (H - m.t - m.b);
+  const W = 760, H = 280, m = { l: 44, r: 12, t: 12, b: 36 }, N = CAP.length, ymax = 250;
+  const X = i => m.l + i / (N - 1) * (W - m.l - m.r), Y = v => m.t + (1 - v / ymax) * (H - m.t - m.b);
   let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Capacity per configuration">`;
   for (let v = 0; v <= ymax; v += 50) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${m.l - 6}" y="${Y(v) + 4}" text-anchor="end" class="muted">${v}</text>`;
   [[0, 'Lu 70'], [44, 'Lu 75'], [64, 'Lu 80']].forEach(([i, t]) => { s += `<line x1="${X(i)}" x2="${X(i)}" y1="${m.t}" y2="${H - m.b}" stroke="var(--muted)" stroke-dasharray="3 3"/><text x="${X(i) + 4}" y="${m.t + 12}" class="muted">${t}</text>`; });
   for (let i = 0; i < N; i += 11) s += `<text x="${X(i)}" y="${H - m.b + 15}" text-anchor="middle" class="muted">${i + 1}</text>`;
   s += `<text x="${(W + m.l) / 2}" y="${H - 4}" text-anchor="middle" class="muted">Configuration No. (thickness 1.5 → 2.25 within each leg length; frame depth 966 → 1166)</text>`;
-  [['g', 'var(--c2)', 3], ['n', '#c55a11', 2], ['f', 'var(--c1)', 2]].forEach(([k, col, w]) => {
-    s += `<path d="M${CAP.map((c, i) => `${X(i).toFixed(1)},${Y(c[k]).toFixed(1)}`).join('L')}" fill="none" stroke="${col}" stroke-width="${w}"/>`; });
+  [['g', 'var(--c2)', 3], ['n', '#c55a11', 2], ['f', 'var(--c1)', 2]].forEach(([k, col, w]) => { s += `<path d="M${CAP.map((c, i) => `${X(i).toFixed(1)},${Y(c[k]).toFixed(1)}`).join('L')}" fill="none" stroke="${col}" stroke-width="${w}"/>`; });
   document.getElementById('capchart').innerHTML = s + '</svg>';
 }
-drawCap();
-
+document.getElementById('reset').onclick = () => { I = Object.assign({}, DEFAULT_INPUTS); store.set('akl3_inputs', null); buildInputs(); update(); };
+document.getElementById('theme').onclick = () => { const d = document.documentElement; const dark = d.dataset.theme ? d.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; d.dataset.theme = dark ? 'light' : 'dark'; };
+document.getElementById('csv').onclick = () => {
+  const q = v => typeof v === 'number' ? String(v) : `"${String(v).replace(/"/g, '""')}"`;
+  const hdr = ['Check', ...R.cases.flatMap(c => ['Ed', 'Rd', 'util', 'result'].map(x => c.name + ' ' + x))].map(q).join(',');
+  const rows = (lst, tagx) => lst.map(c => [tagx + ' ' + c.label, ...c.res.flatMap(x => [x.Ed, x.Rd, x.u, x.pass ? 'PASS' : 'FAIL'])].map(q).join(','));
+  const lines = [['Input', 'Value'].map(q).join(','), ...Object.entries(I).map(([k, v]) => [k, v].map(q).join(',')), '', hdr, ...rows(R.uls, 'ULS'), ...rows(R.sls, 'SLS')];
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv' })); a.download = 'AKL_angle_checks.csv'; a.click();
+};
+buildInputs(); update(); drawCap();
 </script>
 </body>
 </html>
